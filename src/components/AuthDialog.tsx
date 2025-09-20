@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
 import { Eye, EyeSlash, GoogleLogo, GithubLogo, Envelope, Lock, User } from "@phosphor-icons/react"
-import { authHelpers } from '@/lib/supabase'
+import { auth } from '@/lib/supabase'
 import { toast } from 'sonner'
 
 interface AuthDialogProps {
@@ -42,7 +42,7 @@ export const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) =>
 
     setLoading(true)
     try {
-      const { data, error } = await authHelpers.signIn(formData.email, formData.password)
+      const { data, error } = await auth.signIn(formData.email, formData.password)
       
       if (error) {
         toast.error('Sign in failed', {
@@ -81,7 +81,7 @@ export const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) =>
 
     setLoading(true)
     try {
-      const { data, error } = await authHelpers.signUp(formData.email, formData.password)
+      const { data, error } = await auth.signUp(formData.email, formData.password)
       
       if (error) {
         toast.error('Sign up failed', {
@@ -104,7 +104,7 @@ export const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) =>
   const handleGoogleSignIn = async () => {
     setLoading(true)
     try {
-      const { error } = await authHelpers.signInWithGoogle()
+      const { error } = await auth.signInWithGoogle()
       if (error) {
         toast.error('Google sign in failed', {
           description: error.message
@@ -120,7 +120,7 @@ export const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) =>
   const handleGitHubSignIn = async () => {
     setLoading(true)
     try {
-      const { error } = await authHelpers.signInWithGitHub()
+      const { error } = await auth.signInWithGitHub()
       if (error) {
         toast.error('GitHub sign in failed', {
           description: error.message

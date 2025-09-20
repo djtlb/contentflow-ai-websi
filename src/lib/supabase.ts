@@ -4,34 +4,34 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co'
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key'
 
-    autoRefreshToken: tru
+// Create Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-export co
-  signUp: async (email: str
-      email,
-    })
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
   }
-  
+})
 
+// Auth helper functions
+export const auth = {
+  // Sign up with email and password
+  signUp: async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
       password,
-    return { data, error }
-
-  signInWithGoogle: async () => {
-      provider: 'google',
-        redi
     })
+    return { data, error }
   },
+
+  // Sign in with email and password
+  signIn: async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
     return { data, error }
-  si
-
-      }
-    return { data, error }
-
-  signOut: a
-    return { er
-
-  getSession: async () => 
-    
+  },
 
   // Sign in with Google
   signInWithGoogle: async () => {
@@ -62,13 +62,14 @@ export co
   },
 
   // Get current session
+  getSession: async () => {
+    const { data: session, error } = await supabase.auth.getSession()
+    return { session, error }
+  },
 
-
-
-
-
-
-
-
-
-
+  // Get current user
+  getUser: async () => {
+    const { data: user, error } = await supabase.auth.getUser()
+    return { user, error }
+  }
+}

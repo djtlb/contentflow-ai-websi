@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { User, Gear, SignOut, CreditCard, FileText } from "@phosphor-icons/react"
 import { useAuth } from '@/contexts/AuthContext'
-import { authHelpers } from '@/lib/supabase'
+import { auth } from '@/lib/supabase'
 import { toast } from 'sonner'
 
 export const UserMenu: React.FC = () => {
@@ -19,7 +19,7 @@ export const UserMenu: React.FC = () => {
 
   const handleSignOut = async () => {
     try {
-      const { error } = await authHelpers.signOut()
+      const { error } = await auth.signOut()
       if (error) {
         toast.error('Sign out failed', {
           description: error.message
