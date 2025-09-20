@@ -9,6 +9,9 @@ import { Progress } from "@/components/ui/progress"
 import { Toaster } from "@/components/ui/sonner"
 import { Brain, Lightning, ChartBar, Users, ArrowRight, Sparkle, Target, Clock, TrendUp, Play, CheckCircle, Calendar, Phone } from "@phosphor-icons/react"
 import { toast } from 'sonner'
+import { AuthProvider, useAuth } from '@/contexts/AuthContext'
+import { AuthDialog } from '@/components/AuthDialog'
+import { UserMenu } from '@/components/UserMenu'
 
 // Declare spark global for TypeScript
 declare const spark: {
@@ -16,7 +19,9 @@ declare const spark: {
   llm: (prompt: string, modelName?: string, jsonMode?: boolean) => Promise<string>
 }
 
-function App() {
+function AppContent() {
+  const { user, loading } = useAuth()
+  const [authDialogOpen, setAuthDialogOpen] = useState(false)
   const [demoStep, setDemoStep] = useState(0)
   const [demoProgress, setDemoProgress] = useState(0)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -34,23 +39,34 @@ function App() {
 
   // Handle sign in
   const handleSignIn = () => {
-    toast.info("Sign In", {
-      description: "Sign in functionality would redirect to authentication page."
-    })
+    if (user) {
+      // User is already signed in, show user menu or dashboard
+      toast.info("You're already signed in!")
+    } else {
+      setAuthDialogOpen(true)
+    }
   }
 
   // Handle get started
   const handleGetStarted = () => {
-    toast.success("Welcome to ContentFlow AI!", {
-      description: "Redirecting to registration page..."
-    })
+    if (user) {
+      toast.success("Welcome back!", {
+        description: "You're already signed in and ready to create content."
+      })
+    } else {
+      setAuthDialogOpen(true)
+    }
   }
 
   // Handle start free trial
   const handleStartFreeTrial = () => {
-    toast.success("Free Trial Started!", {
-      description: "Your 14-day free trial has been activated. Welcome aboard!"
-    })
+    if (user) {
+      toast.success("Free Trial Active!", {
+        description: "Your account already has an active subscription."
+      })
+    } else {
+      setAuthDialogOpen(true)
+    }
   }
 
   // Handle schedule demo
@@ -227,8 +243,16 @@ Make the content professional, informative, and suitable for publication. Focus 
               >
                 About
               </button>
-              <Button variant="outline" size="sm" onClick={handleSignIn}>Sign In</Button>
-              <Button size="sm" onClick={handleGetStarted}>Get Started</Button>
+              {loading ? (
+                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              ) : user ? (
+                <UserMenu />
+              ) : (
+                <>
+                  <Button variant="outline" size="sm" onClick={handleSignIn}>Sign In</Button>
+                  <Button size="sm" onClick={handleGetStarted}>Get Started</Button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -829,7 +853,19 @@ Make the content professional, informative, and suitable for publication. Focus 
           </div>
         </div>
       </footer>
+
+      {/* Auth Dialog */}
+      <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
     </div>
+  )
+}
+
+// Main App component with AuthProvider
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   )
 }
 
