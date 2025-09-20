@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,6 +13,7 @@ import { toast } from 'sonner'
 import { AuthProvider, useAuth } from '@/contexts/AuthContext'
 import { AuthDialog } from '@/components/AuthDialog'
 import { UserMenu } from '@/components/UserMenu'
+import { ErrorFallback } from './ErrorFallback'
 
 // Declare spark global for TypeScript
 declare global {
@@ -873,12 +875,19 @@ Make the content professional, informative, and suitable for publication. Focus 
   )
 }
 
-// Main App component with AuthProvider
+// Main App component with AuthProvider and Error Boundary
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ErrorBoundary 
+      FallbackComponent={ErrorFallback}
+      onError={(error, errorInfo) => {
+        console.error('Application Error:', error, errorInfo)
+      }}
+    >
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ErrorBoundary>
   )
 }
 

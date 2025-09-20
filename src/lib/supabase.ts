@@ -9,7 +9,7 @@ const isValidConfig = supabaseUrl && supabaseAnonKey &&
                      supabaseUrl.includes('.supabase.co') && 
                      supabaseAnonKey.startsWith('eyJ')
 
-// Create Supabase client
+// Create Supabase client with proper error handling
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: isValidConfig,
@@ -143,6 +143,20 @@ export const auth = {
       return { user, error }
     } catch (error) {
       return { user: null, error }
+    }
+  },
+
+  // Test Supabase connection
+  testConnection: async () => {
+    if (!isValidConfig) {
+      return { connected: false, error: 'Invalid configuration' }
+    }
+    
+    try {
+      const { data, error } = await supabase.auth.getSession()
+      return { connected: true, error: null }
+    } catch (error) {
+      return { connected: false, error: error instanceof Error ? error.message : 'Connection failed' }
     }
   }
 }

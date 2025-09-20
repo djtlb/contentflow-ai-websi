@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import type { User, Session } from '@supabase/supabase-js'
-import { supabase } from '@/lib/supabase'
+import { supabase, auth } from '@/lib/supabase'
 
 interface AuthContextType {
   user: User | null
@@ -24,12 +24,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Get initial session
     const getInitialSession = async () => {
       try {
+        // Test Supabase connection first
+        const connectionTest = await auth.testConnection()
+        if (!connectionTest.connected) {
+          console.warn('Supabase connection test failed:', connectionTest.error)
+        } else {
+          console.log('✅ Supabase connected successfully')
+        }
+
         const { data: { session }, error } = await supabase.auth.getSession()
         if (error) {
           console.error('Error getting session:', error)
         } else {
           setSession(session)
           setUser(session?.user ?? null)
+          if (session) {
+            console.log('User session restored:', session.user?.email)
+          }
         }
       } catch (error) {
         console.error('Error in getInitialSession:', error)
@@ -43,6 +54,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state change:', event, session?.user?.email)
         setSession(session)
         setUser(session?.user ?? null)
         setLoading(false)
