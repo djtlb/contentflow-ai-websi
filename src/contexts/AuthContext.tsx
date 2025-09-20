@@ -6,13 +6,9 @@ interface AuthContextType {
   user: User | null
   session: Session | null
   loading: boolean
+}
 
-
-  loading: true
-
-  const context 
-    throw new E
-  
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const useAuth = () => {
   const context = useContext(AuthContext)
@@ -31,59 +27,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
 
-      setSession(nu
-      setLoading(false)
-    }
+  useEffect(() => {
     // Get initial session
+    const getInitialSession = async () => {
       try {
+        const { data: { session } } = await supabase.auth.getSession()
         setSession(session)
+        setUser(session?.user ?? null)
       } catch (error) {
-
+        console.error('Error getting initial session:', error)
       } finally {
+        setLoading(false)
       }
+    }
 
+    getInitialSession()
 
+    // Listen for auth changes
     const {
-    } = supa
-     
+      data: { subscription }
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setSession(session)
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
 
-    return () => subscript
+    return () => subscription.unsubscribe()
+  }, [])
 
+  const value = {
     user,
+    session,
     loading
+  }
 
-    <AuthContext.Provider value={value
-    </AuthContext.Provi
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
