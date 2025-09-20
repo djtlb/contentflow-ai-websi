@@ -56,7 +56,7 @@ interface AIVideoGeneratorProps {
 }
 
 export function AIVideoGenerator({ script }: AIVideoGeneratorProps) {
-  const { user } = useAuth()
+  const { user, isAdmin } = useAuth()
   const [isGenerating, setIsGenerating] = useState(false)
   const [generationProgress, setGenerationProgress] = useState(0)
   const [videoStyle, setVideoStyle] = useState("realistic")
@@ -67,8 +67,8 @@ export function AIVideoGenerator({ script }: AIVideoGeneratorProps) {
   const [videoProjects, setVideoProjects] = useKV<VideoProject[]>("video-projects", [])
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false)
 
-  // Check if user has premium access
-  const hasPremiumAccess = !!user // In real app, check subscription status
+  // Check if user has premium access - admin emails get full access
+  const hasPremiumAccess = isAdmin || !!user // Admin gets full access, others get basic access
 
   const generateVideo = async () => {
     if (!hasPremiumAccess) {

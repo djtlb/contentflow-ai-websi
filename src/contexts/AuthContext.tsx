@@ -6,6 +6,7 @@ interface AuthContextType {
   user: User | null
   session: Session | null
   loading: boolean
+  isAdmin: boolean
   signOut: () => Promise<void>
 }
 
@@ -19,6 +20,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+
+  // Check if user is admin
+  const adminEmails = ['sallykamari61@gmail.com']
+  const isAdmin = user?.email ? adminEmails.includes(user.email) : false
 
   useEffect(() => {
     // Get initial session
@@ -76,6 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     session,
     loading,
+    isAdmin,
     signOut
   }
 

@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Progress } from "@/components/ui/progress"
 import { Toaster } from "@/components/ui/sonner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Brain, Lightning, ChartBar, Users, ArrowRight, Sparkle, Target, Clock, TrendUp, Play, CheckCircle, Calendar, Phone, Video, FileText } from "@phosphor-icons/react"
+import { Brain, Lightning, ChartBar, Users, ArrowRight, Sparkle, Target, Clock, TrendUp, Play, CheckCircle, Calendar, Phone, Video, FileText, Crown } from "@phosphor-icons/react"
 import { toast } from 'sonner'
 import { AuthProvider, useAuth } from '@/contexts/AuthContext'
 import { AuthDialog } from '@/components/AuthDialog'
@@ -37,7 +37,7 @@ declare global {
 declare const spark: Window['spark']
 
 function AppContent() {
-  const { user, loading } = useAuth()
+  const { user, loading, isAdmin } = useAuth()
   const [authDialogOpen, setAuthDialogOpen] = useState(false)
   const [demoStep, setDemoStep] = useState(0)
   const [demoProgress, setDemoProgress] = useState(0)
@@ -240,6 +240,12 @@ Make the content professional, informative, and suitable for publication. Focus 
             <div className="flex items-center space-x-2">
               <Brain size={32} weight="bold" className="text-primary" />
               <span className="text-xl font-bold">ContentFlow AI</span>
+              {isAdmin && (
+                <Badge variant="secondary" className="bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800">
+                  <Crown size={10} className="mr-1" />
+                  Admin
+                </Badge>
+              )}
             </div>
             <div className="hidden md:flex items-center space-x-8">
               <button 

@@ -9,13 +9,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { User, Gear, SignOut, CreditCard, FileText } from "@phosphor-icons/react"
+import { User, Gear, SignOut, CreditCard, FileText, Crown } from "@phosphor-icons/react"
 import { useAuth } from '@/contexts/AuthContext'
 import { auth } from '@/lib/supabase'
 import { toast } from 'sonner'
 
 export const UserMenu: React.FC = () => {
-  const { user } = useAuth()
+  const { user, isAdmin } = useAuth()
 
   const handleSignOut = async () => {
     try {
@@ -46,6 +46,11 @@ export const UserMenu: React.FC = () => {
       case 'settings':
         toast.info('Settings coming soon!')
         break
+      case 'admin':
+        toast.success('Admin access confirmed!', {
+          description: 'You have full access to all premium features including AI video generation.'
+        })
+        break
     }
   }
 
@@ -69,13 +74,28 @@ export const UserMenu: React.FC = () => {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{displayName}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium leading-none">{displayName}</p>
+              {isAdmin && (
+                <Crown size={14} className="text-amber-600" />
+              )}
+            </div>
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
+              {isAdmin && <span className="text-amber-600 ml-1">(Admin)</span>}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {isAdmin && (
+          <>
+            <DropdownMenuItem onClick={() => handleMenuAction('admin')}>
+              <Crown className="mr-2 h-4 w-4 text-amber-600" />
+              <span>Admin Panel</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuItem onClick={() => handleMenuAction('profile')}>
           <User className="mr-2 h-4 w-4" />
           <span>Profile</span>
