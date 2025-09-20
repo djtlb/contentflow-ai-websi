@@ -1,12 +1,91 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Brain, Lightning, ChartBar, Users, ArrowRight, Sparkle, Target, Clock, TrendUp } from "@phosphor-icons/react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Progress } from "@/components/ui/progress"
+import { Brain, Lightning, ChartBar, Users, ArrowRight, Sparkle, Target, Clock, TrendUp, Play, CheckCircle } from "@phosphor-icons/react"
 
 function App() {
+  const [demoStep, setDemoStep] = useState(0)
+  const [demoProgress, setDemoProgress] = useState(0)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [generatedContent, setGeneratedContent] = useState("")
+  const [inputTopic, setInputTopic] = useState("")
+  const [isMainGenerating, setIsMainGenerating] = useState(false)
+
+  const demoSteps = [
+    {
+      title: "Enter Your Topic",
+      description: "Start by describing what content you want to create",
+      content: "sustainable technology trends in 2024"
+    },
+    {
+      title: "AI Analysis",
+      description: "Our AI analyzes your topic and identifies key themes",
+      content: "Analyzing: renewable energy, green tech, sustainability metrics..."
+    },
+    {
+      title: "Content Generation",
+      description: "Generating high-quality, SEO-optimized content",
+      content: "Creating engaging content with proper structure and keywords..."
+    },
+    {
+      title: "Final Result",
+      description: "Your AI-generated content is ready for use",
+      content: `# Sustainable Technology Trends Shaping 2024
+
+The landscape of sustainable technology is evolving rapidly, with groundbreaking innovations transforming how businesses approach environmental responsibility. From advanced renewable energy systems to AI-powered carbon tracking, companies are leveraging cutting-edge solutions to reduce their environmental footprint while maintaining competitive advantage.
+
+## Key Trends to Watch
+
+**Renewable Energy Integration**: Smart grid technologies are making renewable energy more reliable and cost-effective than ever before.
+
+**Circular Economy Solutions**: Advanced recycling technologies and sustainable materials are creating closed-loop systems across industries.
+
+**Carbon Intelligence**: AI-driven platforms are providing unprecedented visibility into carbon emissions, enabling data-driven sustainability decisions.
+
+This content is optimized for search engines and ready for publication across your marketing channels.`
+    }
+  ]
+
+  const startDemo = () => {
+    setDemoStep(0)
+    setDemoProgress(0)
+    setIsGenerating(true)
+    setGeneratedContent("")
+
+    // Simulate demo progression
+    const interval = setInterval(() => {
+      setDemoStep(prev => {
+        const nextStep = prev + 1
+        setDemoProgress((nextStep / demoSteps.length) * 100)
+        
+        if (nextStep >= demoSteps.length) {
+          setIsGenerating(false)
+          clearInterval(interval)
+          return demoSteps.length - 1
+        }
+        return nextStep
+      })
+    }, 2000)
+  }
+
+  const generateMainContent = async () => {
+    if (!inputTopic.trim()) return
+    
+    setIsMainGenerating(true)
+    
+    // Simulate content generation with a delay
+    setTimeout(() => {
+      const sampleContent = `"${inputTopic.charAt(0).toUpperCase() + inputTopic.slice(1)} represents a fascinating area of exploration with numerous applications and implications. Recent developments in this field have shown remarkable progress, offering new opportunities for innovation and growth. Key considerations include market trends, technological advancement, and user adoption patterns..."`
+      setGeneratedContent(sampleContent)
+      setIsMainGenerating(false)
+    }, 2000)
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Navigation */}
@@ -47,9 +126,93 @@ function App() {
               Start Creating Free
               <ArrowRight size={20} className="ml-2" />
             </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8">
-              Watch Demo
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="lg" className="text-lg px-8">
+                  <Play size={20} className="mr-2" />
+                  Watch Demo
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Lightning size={24} className="text-accent" />
+                    ContentFlow AI Demo
+                  </DialogTitle>
+                  <DialogDescription>
+                    See how ContentFlow AI generates high-quality content in seconds
+                  </DialogDescription>
+                </DialogHeader>
+                
+                <div className="space-y-6">
+                  {/* Progress Bar */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Demo Progress</span>
+                      <span>{Math.round(demoProgress)}%</span>
+                    </div>
+                    <Progress value={demoProgress} className="h-2" />
+                  </div>
+
+                  {/* Demo Steps */}
+                  <div className="space-y-4">
+                    {demoSteps.map((step, index) => (
+                      <Card key={index} className={`transition-all duration-500 ${
+                        index <= demoStep ? 'border-primary bg-primary/5' : 'border-muted bg-muted/20'
+                      }`}>
+                        <CardHeader className="pb-3">
+                          <CardTitle className="flex items-center gap-2 text-lg">
+                            {index < demoStep ? (
+                              <CheckCircle size={20} className="text-green-500" />
+                            ) : index === demoStep ? (
+                              <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <div className="w-5 h-5 border-2 border-muted-foreground rounded-full" />
+                            )}
+                            Step {index + 1}: {step.title}
+                          </CardTitle>
+                          <CardDescription>{step.description}</CardDescription>
+                        </CardHeader>
+                        {index <= demoStep && (
+                          <CardContent>
+                            {index === 3 ? (
+                              <div className="bg-background p-4 rounded-lg border">
+                                <pre className="whitespace-pre-wrap text-sm">{step.content}</pre>
+                              </div>
+                            ) : (
+                              <div className="bg-muted p-3 rounded-lg">
+                                <p className="text-sm font-mono">{step.content}</p>
+                              </div>
+                            )}
+                          </CardContent>
+                        )}
+                      </Card>
+                    ))}
+                  </div>
+
+                  {/* Demo Controls */}
+                  <div className="flex justify-center pt-4">
+                    <Button 
+                      onClick={startDemo} 
+                      disabled={isGenerating}
+                      className="text-lg px-8"
+                    >
+                      {isGenerating ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Play size={20} className="mr-2" />
+                          {demoStep === 0 ? 'Start Demo' : 'Restart Demo'}
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
           
           {/* Demo Content Card */}
@@ -68,15 +231,41 @@ function App() {
                 <Input 
                   placeholder="Enter your topic: 'sustainable technology trends'" 
                   className="flex-1"
+                  value={inputTopic}
+                  onChange={(e) => setInputTopic(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && generateMainContent()}
                 />
-                <Button>Generate</Button>
+                <Button 
+                  onClick={generateMainContent}
+                  disabled={isMainGenerating || !inputTopic.trim()}
+                >
+                  {isMainGenerating ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    'Generate'
+                  )}
+                </Button>
               </div>
-              <div className="bg-muted p-4 rounded-lg text-left">
-                <p className="text-sm text-muted-foreground mb-2">Generated Content Preview:</p>
-                <p className="text-foreground">
-                  "Sustainable technology is reshaping industries worldwide, from renewable energy solutions 
-                  to eco-friendly manufacturing processes. As businesses prioritize environmental responsibility..."
-                </p>
+              <div className="bg-muted p-4 rounded-lg text-left min-h-[100px] flex items-center">
+                {isMainGenerating ? (
+                  <div className="flex items-center space-x-2 text-muted-foreground">
+                    <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                    <span>Generating content...</span>
+                  </div>
+                ) : generatedContent ? (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Generated Content Preview:</p>
+                    <p className="text-foreground">{generatedContent}</p>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Generated Content Preview:</p>
+                    <p className="text-foreground">
+                      "Sustainable technology is reshaping industries worldwide, from renewable energy solutions 
+                      to eco-friendly manufacturing processes. As businesses prioritize environmental responsibility..."
+                    </p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
