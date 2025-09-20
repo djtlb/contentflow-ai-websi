@@ -6,6 +6,7 @@ interface AuthContextType {
   user: User | null
   session: Session | null
   loading: boolean
+  signOut: () => Promise<void>
 }
 
 interface AuthProviderProps {
@@ -40,21 +41,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     getInitialSession()
 
     // Listen for auth changes
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session)
+        setUser(session?.user ?? null)
+        setLoading(false)
+      }
+    )
 
     return () => subscription.unsubscribe()
   }, [])
 
-  const value = {
+  const signOut = async () => {
+    try {
+      await supabase.auth.signOut()
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
+
+  const value: AuthContextType = {
     user,
     session,
-    loading
+    loading,
+    signOut
   }
 
   return (
