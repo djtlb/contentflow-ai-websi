@@ -15,14 +15,26 @@ import { VideoScriptGenerator } from './VideoScriptGenerator'
 import { AIVideoGenerator } from './AIVideoGenerator'
 
 interface VideoScript {
+  id: string
   title: string
+  topic: string
+  duration: string
+  audience: string
+  tone: string
   script: string
   scenes: Array<{
+    id: string
     title: string
+    description: string
+    duration: string
     dialogue: string
     visuals: string
-    duration: string
+    objective?: string
+    ctaElements?: string
   }>
+  createdAt: string
+  campaignType?: string
+  keyMessages?: string[]
 }
 
 export function VideoCreationHub() {
@@ -40,20 +52,20 @@ export function VideoCreationHub() {
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center gap-2 mb-4">
           <Video size={32} className="text-primary" />
-          <h1 className="text-3xl font-bold">Video Creation Suite</h1>
+          <h1 className="text-3xl font-bold">Professional Video Marketing Suite</h1>
         </div>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Create professional video content from concept to completion with AI-powered tools
+        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          Create compelling marketing videos from concept to completion with AI-powered script generation and professional video creation tools
         </p>
         <div className="flex justify-center gap-6 text-sm">
           <div className="flex items-center gap-2">
             <FileText size={16} className="text-accent" />
-            <span>Script Generation</span>
+            <span>Marketing Script Generation</span>
           </div>
           <ArrowRight size={16} className="text-muted-foreground" />
           <div className="flex items-center gap-2">
             <Video size={16} className="text-primary" />
-            <span>AI Video Creation</span>
+            <span>AI Video Production</span>
             <Badge variant="secondary" className="bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800">
               <Crown size={10} className="mr-1" />
               Premium
@@ -91,29 +103,29 @@ export function VideoCreationHub() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText size={24} className="text-accent" />
-              Script Generation
+              Marketing Script Generator
             </CardTitle>
             <CardDescription>
-              Create professional video scripts with AI assistance
+              Create professional marketing video scripts with campaign templates
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <ul className="space-y-2 text-sm">
               <li className="flex items-center gap-2">
                 <Sparkle size={14} className="text-accent" />
-                Scene-by-scene breakdown
+                8 marketing campaign templates
               </li>
               <li className="flex items-center gap-2">
                 <Sparkle size={14} className="text-accent" />
-                Dialogue and visual directions
+                Scene-by-scene production guide
               </li>
               <li className="flex items-center gap-2">
                 <Sparkle size={14} className="text-accent" />
-                Customizable tone and audience
+                Call-to-action optimization
               </li>
               <li className="flex items-center gap-2">
                 <Sparkle size={14} className="text-accent" />
-                Export and save scripts
+                Visual direction & dialogue
               </li>
             </ul>
             <Button 
@@ -121,7 +133,7 @@ export function VideoCreationHub() {
               className="w-full" 
               onClick={() => setActiveTab("scripts")}
             >
-              Start Creating Scripts
+              Start Creating Marketing Scripts
             </Button>
           </CardContent>
         </Card>
