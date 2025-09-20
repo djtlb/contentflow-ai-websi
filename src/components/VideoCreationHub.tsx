@@ -55,7 +55,7 @@ export function VideoCreationHub() {
           <h1 className="text-3xl font-bold">Professional Video Marketing Suite</h1>
         </div>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Create compelling marketing videos from concept to completion with AI-powered script generation and professional video creation tools
+          Create compelling marketing videos from concept to completion with AI-powered script generation and professional production guidance
         </p>
         <div className="flex justify-center gap-6 text-sm">
           <div className="flex items-center gap-2">
@@ -65,7 +65,7 @@ export function VideoCreationHub() {
           <ArrowRight size={16} className="text-muted-foreground" />
           <div className="flex items-center gap-2">
             <Video size={16} className="text-primary" />
-            <span>AI Video Production</span>
+            <span>AI Production Assistant</span>
             <Badge variant="secondary" className="bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800">
               <Crown size={10} className="mr-1" />
               Premium
@@ -83,7 +83,7 @@ export function VideoCreationHub() {
           </TabsTrigger>
           <TabsTrigger value="videos" className="flex items-center gap-2">
             <Video size={16} />
-            AI Video Generator
+            AI Production Assistant
             <Crown size={12} className="text-amber-600" />
           </TabsTrigger>
         </TabsList>
@@ -142,33 +142,33 @@ export function VideoCreationHub() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Video size={24} className="text-primary" />
-              AI Video Generation
+              AI Production Assistant
               <Badge variant="secondary" className="bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800">
                 <Crown size={10} className="mr-1" />
                 Premium
               </Badge>
             </CardTitle>
             <CardDescription>
-              Transform scripts into professional videos automatically
+              Get professional production guides and technical analysis for your video scripts
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <ul className="space-y-2 text-sm">
               <li className="flex items-center gap-2">
                 <Crown size={14} className="text-amber-600" />
-                Multiple video styles
+                AI video analysis & concept development
               </li>
               <li className="flex items-center gap-2">
                 <Crown size={14} className="text-amber-600" />
-                AI voice narration
+                Professional shot lists & visual guides
               </li>
               <li className="flex items-center gap-2">
                 <Crown size={14} className="text-amber-600" />
-                HD/4K resolution options
+                Production specifications & technical guidance
               </li>
               <li className="flex items-center gap-2">
                 <Crown size={14} className="text-amber-600" />
-                Professional video output
+                Complete production packages
               </li>
             </ul>
             <Button 
@@ -176,7 +176,7 @@ export function VideoCreationHub() {
               onClick={() => setActiveTab("videos")}
             >
               <Play size={16} className="mr-2" />
-              Create AI Videos
+              Get AI Production Analysis
             </Button>
           </CardContent>
         </Card>

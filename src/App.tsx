@@ -151,8 +151,8 @@ This content is optimized for search engines and ready for publication across yo
     setDemoProgress(75)
     
     try {
-      // Generate real AI content for the demo
-      const prompt = spark.llmPrompt`Generate a comprehensive, engaging article about sustainable technology trends in 2024. 
+      // Generate both content and video script for comprehensive demo
+      const contentPrompt = spark.llmPrompt`Generate a comprehensive, engaging article about sustainable technology trends in 2024. 
 
 Structure the content with:
 - A compelling headline starting with "#"
@@ -163,15 +163,88 @@ Structure the content with:
 
 Make the content professional, informative, and suitable for publication. Keep it concise but comprehensive.`
 
-      const aiContent = await spark.llm(prompt)
+      const videoScriptPrompt = spark.llmPrompt`Generate a professional marketing video script for "Sustainable Technology Trends in 2024" campaign:
+
+Duration: 60 seconds
+Target Audience: Business decision makers and sustainability professionals
+Tone: Professional yet engaging
+Campaign Type: Educational Awareness
+
+Create a marketing-focused video script with:
+1. Compelling title
+2. Attention-grabbing hook (first 5 seconds)
+3. 4-5 scenes that tell a complete story
+4. Each scene should include:
+   - Scene title and marketing objective
+   - Duration (distribute across 60 seconds)
+   - Compelling dialogue/narration
+   - Visual descriptions for professional video production
+   - Clear call-to-action elements
+
+Make it persuasive, informative, and designed for business impact.
+
+Format as JSON:
+{
+  "title": "Video Title",
+  "hook": "Opening hook",
+  "totalDuration": "60s",
+  "scenes": [
+    {
+      "title": "Scene Name",
+      "objective": "awareness/consideration/conversion",
+      "duration": "12s",
+      "dialogue": "Compelling narration",
+      "visuals": "Professional visual descriptions",
+      "ctaElements": "Call-to-action elements"
+    }
+  ],
+  "callToAction": "Strong closing CTA"
+}`
+
+      // Generate both pieces of content simultaneously for demo
+      const [aiContent, videoScriptResponse] = await Promise.all([
+        spark.llm(contentPrompt),
+        spark.llm(videoScriptPrompt, "gpt-4o", true)
+      ])
       
-      // Update the demo steps with the real AI content
+      const videoScript = JSON.parse(videoScriptResponse)
+      
+      // Update the demo steps with real AI content
       setDemoSteps(prev => [
         ...prev.slice(0, 3),
         {
           title: "Final Result",
-          description: "Your AI-generated content is ready for use",
-          content: aiContent
+          description: "Your AI-generated content and video script are ready",
+          content: `# Content Created Successfully!
+
+## Article Content:
+${aiContent}
+
+---
+
+## Professional Video Script: ${videoScript.title}
+
+**Hook (Opening 5 seconds):**
+${videoScript.hook}
+
+**Complete Video Script:**
+${videoScript.scenes.map((scene: any, index: number) => `
+**Scene ${index + 1}: ${scene.title}** (${scene.duration})
+*Objective: ${scene.objective}*
+
+Dialogue: ${scene.dialogue}
+
+Visuals: ${scene.visuals}
+
+${scene.ctaElements ? `CTA Elements: ${scene.ctaElements}` : ''}
+`).join('')}
+
+**Closing Call-to-Action:**
+${videoScript.callToAction}
+
+---
+
+*Both your article content and professional video script are ready for immediate use in your marketing campaigns!*`
         }
       ])
       
@@ -180,7 +253,7 @@ Make the content professional, informative, and suitable for publication. Keep i
       setDemoProgress(100)
       setIsGenerating(false)
       toast.success("Demo completed!", {
-        description: "Real AI content generated successfully."
+        description: "Generated both content article and professional video script with AI."
       })
     } catch (error) {
       console.error('Demo content generation failed:', error)
@@ -493,6 +566,39 @@ Make the content professional, informative, and suitable for publication. Focus 
                 
                 <TabsContent value="video" className="mt-6">
                   <VideoCreationHub />
+                  
+                  {/* Demo Section for Video Creation */}
+                  <Card className="mt-6 border-2 border-accent/20 bg-gradient-to-r from-accent/5 to-primary/5">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Play size={20} className="text-accent" />
+                        Try Video Script Generation Demo
+                      </CardTitle>
+                      <CardDescription>
+                        See how our AI creates professional marketing video scripts
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button 
+                        onClick={startDemo}
+                        variant="outline"
+                        className="w-full border-accent text-accent hover:bg-accent/10"
+                        disabled={isGenerating}
+                      >
+                        {isGenerating ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin mr-2" />
+                            Running Demo...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkle size={16} className="mr-2" />
+                            Generate Demo Marketing Script
+                          </>
+                        )}
+                      </Button>
+                    </CardContent>
+                  </Card>
                 </TabsContent>
               </Tabs>
             </CardContent>

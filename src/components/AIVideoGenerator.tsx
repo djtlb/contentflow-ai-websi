@@ -38,6 +38,12 @@ interface VideoProject {
   videoUrl?: string
   thumbnailUrl?: string
   createdAt: string
+  metadata?: {
+    analysis?: any
+    visualDirections?: string
+    voiceScript?: string
+    productionGuide?: string
+  }
 }
 
 interface VideoScriptForGeneration {
@@ -101,61 +107,150 @@ export function AIVideoGenerator({ script }: AIVideoGeneratorProps) {
 
       setCurrentProject(newProject)
 
-      // Simulate video generation process with realistic steps
-      const steps = [
-        { name: "Analyzing script", duration: 2000 },
-        { name: "Generating visual assets", duration: 8000 },
-        { name: "Creating voice narration", duration: 5000 },
-        { name: "Compositing scenes", duration: 6000 },
-        { name: "Rendering final video", duration: 4000 }
-      ]
+      // Step 1: AI Analysis (5%)
+      toast.info("Analyzing script with AI", { description: "Understanding content and requirements" })
+      setGenerationProgress(5)
 
-      let totalProgress = 0
-      const progressPerStep = 100 / steps.length
+      // Use Spark AI to analyze the script and generate video concept
+      const analysisPrompt = spark.llmPrompt`Analyze this video script for professional video production:
 
-      for (let i = 0; i < steps.length; i++) {
-        const step = steps[i]
-        toast.info(step.name, { description: `Step ${i + 1} of ${steps.length}` })
-        
-        // Animate progress for this step
-        const stepStartProgress = totalProgress
-        const stepEndProgress = totalProgress + progressPerStep
-        
-        const progressInterval = setInterval(() => {
-          setGenerationProgress(prev => {
-            const newProgress = Math.min(prev + 2, stepEndProgress)
-            return newProgress
-          })
-        }, step.duration / 50)
+**Script:** ${scriptToUse}
+**Style:** ${videoStyle}
+**Resolution:** ${resolution}
 
-        await new Promise(resolve => setTimeout(resolve, step.duration))
-        clearInterval(progressInterval)
-        totalProgress = stepEndProgress
-      }
+Generate a comprehensive video production analysis including:
+1. Visual concept and theme
+2. Shot list with camera angles
+3. Color palette and lighting suggestions
+4. Music/audio recommendations
+5. Key visual elements needed
+6. Estimated production complexity
+7. Target audience considerations
 
-      // Complete the project
+Provide practical, production-ready guidance for creating this video.
+
+Format as JSON:
+{
+  "concept": "Overall visual concept",
+  "theme": "Main theme and mood",
+  "shotList": ["Shot 1 description", "Shot 2 description"],
+  "colorPalette": ["#color1", "#color2", "#color3"],
+  "lighting": "Lighting recommendations",
+  "audio": "Music and sound recommendations",
+  "complexity": "low/medium/high",
+  "targetAudience": "Audience analysis",
+  "visualElements": ["Element 1", "Element 2"],
+  "productionNotes": "Additional production guidance"
+}`
+
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      const analysisResponse = await spark.llm(analysisPrompt, "gpt-4o", true)
+      const videoAnalysis = JSON.parse(analysisResponse)
+
+      // Step 2: Visual Asset Planning (25%)
+      toast.info("AI-powered visual asset planning", { description: "Generating shot list and visual guides" })
+      setGenerationProgress(25)
+
+      const visualPrompt = spark.llmPrompt`Based on this video analysis, create detailed visual directions:
+
+**Analysis:** ${JSON.stringify(videoAnalysis)}
+**Script:** ${scriptToUse}
+
+Generate specific visual directions for each scene including:
+1. Camera movements and angles
+2. Visual composition
+3. Props and set design
+4. Actor directions (if applicable)
+5. Visual effects needed
+6. Transition suggestions
+
+Format as professional video production notes.`
+
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      const visualDirections = await spark.llm(visualPrompt)
+
+      // Step 3: Audio Script Generation (50%)
+      toast.info("Generating AI voice narration script", { description: "Creating optimized voice-over" })
+      setGenerationProgress(50)
+
+      const audioPrompt = spark.llmPrompt`Create an optimized voice-over script for AI narration:
+
+**Original Script:** ${scriptToUse}
+**Voice Style:** ${voiceStyle}
+**Video Style:** ${videoStyle}
+
+Optimize the script for AI voice generation by:
+1. Adding proper pronunciation guides for difficult words
+2. Including timing and pacing notes
+3. Adding emphasis markers
+4. Suggesting pause points
+5. Formatting for natural speech flow
+
+Provide the final voice-ready script with production notes.`
+
+      await new Promise(resolve => setTimeout(resolve, 2500))
+      const voiceScript = await spark.llm(audioPrompt)
+
+      // Step 4: Production Guide Generation (75%)
+      toast.info("Compiling production assets", { description: "Creating comprehensive video guide" })
+      setGenerationProgress(75)
+
+      const productionPrompt = spark.llmPrompt`Create a complete video production guide:
+
+**Video Analysis:** ${JSON.stringify(videoAnalysis)}
+**Visual Directions:** ${visualDirections}
+**Voice Script:** ${voiceScript}
+
+Compile a professional production package including:
+1. Executive summary
+2. Technical specifications
+3. Scene-by-scene breakdown
+4. Asset requirements
+5. Timeline estimates
+6. Quality checkpoints
+7. Distribution recommendations
+
+Format as a professional production brief.`
+
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      const productionGuide = await spark.llm(productionPrompt)
+
+      // Step 5: Final Processing (100%)
+      toast.info("Finalizing video project", { description: "Preparing deliverables" })
+      setGenerationProgress(95)
+
+      await new Promise(resolve => setTimeout(resolve, 1500))
+
+      // Complete the project with AI-generated content
       const completedProject: VideoProject = {
         ...newProject,
         status: 'completed',
         progress: 100,
-        videoUrl: `/generated-video-${newProject.id}.mp4`, // Mock URL
-        thumbnailUrl: `/thumbnail-${newProject.id}.jpg` // Mock URL
+        videoUrl: `/ai-video-guide-${newProject.id}.pdf`, // AI-generated production guide
+        thumbnailUrl: `/concept-${newProject.id}.jpg`, // Mock concept thumbnail
+        // Store AI-generated content in project metadata
+        metadata: {
+          analysis: videoAnalysis,
+          visualDirections,
+          voiceScript,
+          productionGuide
+        }
       }
 
       setCurrentProject(completedProject)
       setVideoProjects((currentProjects) => [completedProject, ...(currentProjects || [])])
       
       setGenerationProgress(100)
-      toast.success("Video generated successfully!", {
-        description: "Your AI-generated video is ready for download."
+      toast.success("AI Video Production Guide Generated!", {
+        description: "Complete professional video production package ready for download."
       })
     } catch (error) {
       console.error('Video generation failed:', error)
       if (currentProject) {
         setCurrentProject({ ...currentProject, status: 'failed' })
       }
-      toast.error("Video generation failed", {
-        description: "Please try again or contact support if the issue persists."
+      toast.error("AI Video generation failed", {
+        description: "Please try again with a different script or contact support."
       })
     } finally {
       setIsGenerating(false)
@@ -165,9 +260,99 @@ export function AIVideoGenerator({ script }: AIVideoGeneratorProps) {
   const downloadVideo = (project: VideoProject) => {
     if (!project.videoUrl) return
     
-    // In a real implementation, this would download the actual video file
-    toast.success("Download started", {
-      description: "Your video will be downloaded shortly."
+    // Generate comprehensive production guide content
+    const productionContent = `# ${project.title} - Professional Video Production Guide
+
+## Project Overview
+**Generated:** ${new Date(project.createdAt).toLocaleDateString()}
+**Style:** ${project.style}
+**Resolution:** ${project.resolution}
+**Status:** ${project.status}
+
+## Original Script
+${project.script}
+
+---
+
+${project.metadata?.analysis ? `## AI Video Analysis
+**Visual Concept:** ${project.metadata.analysis.concept || 'N/A'}
+**Theme:** ${project.metadata.analysis.theme || 'N/A'}
+**Target Audience:** ${project.metadata.analysis.targetAudience || 'N/A'}
+**Production Complexity:** ${project.metadata.analysis.complexity || 'N/A'}
+
+### Shot List
+${project.metadata.analysis.shotList ? project.metadata.analysis.shotList.map((shot: string, index: number) => `${index + 1}. ${shot}`).join('\n') : 'No shot list available'}
+
+### Color Palette
+${project.metadata.analysis.colorPalette ? project.metadata.analysis.colorPalette.join(', ') : 'No color palette specified'}
+
+### Lighting Recommendations
+${project.metadata.analysis.lighting || 'No lighting recommendations available'}
+
+### Audio Recommendations
+${project.metadata.analysis.audio || 'No audio recommendations available'}
+
+### Visual Elements
+${project.metadata.analysis.visualElements ? project.metadata.analysis.visualElements.map((element: string) => `- ${element}`).join('\n') : 'No visual elements specified'}
+
+### Production Notes
+${project.metadata.analysis.productionNotes || 'No additional production notes'}
+
+---
+` : ''}
+
+${project.metadata?.visualDirections ? `## Visual Directions
+${project.metadata.visualDirections}
+
+---
+` : ''}
+
+${project.metadata?.voiceScript ? `## AI-Optimized Voice Script
+${project.metadata.voiceScript}
+
+---
+` : ''}
+
+${project.metadata?.productionGuide ? `## Complete Production Guide
+${project.metadata.productionGuide}
+
+---
+` : ''}
+
+## Technical Specifications
+- **Video Style:** ${project.style}
+- **Resolution:** ${project.resolution}
+- **Duration:** ${project.duration}
+
+## Next Steps for Video Production
+1. Review the AI-generated visual concepts and shot list
+2. Gather required props and set pieces based on visual directions
+3. Record voice-over using the optimized script
+4. Film scenes according to the shot list and visual directions
+5. Edit according to the provided production guide
+6. Apply color grading based on the suggested palette
+7. Add audio and sound effects as recommended
+8. Final review and distribution
+
+---
+
+*This production guide was generated by ContentFlow AI using advanced AI analysis of your script. Use this as a comprehensive starting point for professional video production.*
+
+Generated by ContentFlow AI - Professional Video Creation Platform
+Visit: https://contentflow.ai for more AI-powered content tools
+`
+    
+    // Create and download the production guide
+    const blob = new Blob([productionContent], { type: 'text/markdown' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${project.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-production-guide.md`
+    a.click()
+    URL.revokeObjectURL(url)
+    
+    toast.success("Production Guide Downloaded!", {
+      description: "Complete AI-generated video production guide saved to your device."
     })
   }
 
@@ -182,7 +367,7 @@ export function AIVideoGenerator({ script }: AIVideoGeneratorProps) {
               Premium Feature
             </CardTitle>
             <CardDescription className="text-amber-700">
-              AI Video Generation is available for premium subscribers. Upgrade to create professional videos from your scripts.
+              AI Video Production Analysis is available for premium subscribers. Get comprehensive production guides and professional insights for your video scripts.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -202,14 +387,14 @@ export function AIVideoGenerator({ script }: AIVideoGeneratorProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Video size={24} className="text-accent" />
-            AI Video Generator
+            AI Video Production Assistant
             <Badge variant="secondary" className="bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800">
               <Crown size={12} className="mr-1" />
               Premium
             </Badge>
           </CardTitle>
           <CardDescription>
-            Transform your scripts into professional videos with AI
+            Generate comprehensive production guides for professional video creation using AI analysis
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -306,12 +491,12 @@ export function AIVideoGenerator({ script }: AIVideoGeneratorProps) {
             {isGenerating ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                Generating Video...
+                Generating Production Guide...
               </>
             ) : (
               <>
                 <Sparkle size={20} className="mr-2" />
-                Generate AI Video
+                Generate AI Production Guide
               </>
             )}
           </Button>
@@ -360,11 +545,11 @@ export function AIVideoGenerator({ script }: AIVideoGeneratorProps) {
               <div className="flex gap-2">
                 <Button onClick={() => downloadVideo(currentProject)}>
                   <Download size={16} className="mr-2" />
-                  Download Video
+                  Download Production Guide
                 </Button>
                 <Button variant="outline">
                   <Play size={16} className="mr-2" />
-                  Preview
+                  View Analysis
                 </Button>
               </div>
             )}
@@ -440,23 +625,23 @@ export function AIVideoGenerator({ script }: AIVideoGeneratorProps) {
               <ul className="space-y-2 text-sm text-amber-700">
                 <li className="flex items-center gap-2">
                   <CheckCircle size={16} className="text-amber-600" />
-                  AI Video Generation from scripts
+                  AI Video Production Analysis
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle size={16} className="text-amber-600" />
-                  Multiple video styles & resolutions
+                  Professional shot lists & visual guides
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle size={16} className="text-amber-600" />
-                  Professional AI voice narration
+                  AI-optimized voice scripts
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle size={16} className="text-amber-600" />
-                  Unlimited video generations
+                  Complete production packages
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle size={16} className="text-amber-600" />
-                  Priority processing & support
+                  Technical specifications & guidance
                 </li>
               </ul>
             </div>
