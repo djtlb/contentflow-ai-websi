@@ -8,11 +8,13 @@ import { Separator } from "@/components/ui/separator"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Progress } from "@/components/ui/progress"
 import { Toaster } from "@/components/ui/sonner"
-import { Brain, Lightning, ChartBar, Users, ArrowRight, Sparkle, Target, Clock, TrendUp, Play, CheckCircle, Calendar, Phone } from "@phosphor-icons/react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Brain, Lightning, ChartBar, Users, ArrowRight, Sparkle, Target, Clock, TrendUp, Play, CheckCircle, Calendar, Phone, Video, FileText } from "@phosphor-icons/react"
 import { toast } from 'sonner'
 import { AuthProvider, useAuth } from '@/contexts/AuthContext'
 import { AuthDialog } from '@/components/AuthDialog'
 import { UserMenu } from '@/components/UserMenu'
+import { VideoCreationHub } from '@/components/VideoCreationHub'
 import { ErrorFallback } from './ErrorFallback'
 
 // Declare spark global for TypeScript
@@ -400,74 +402,93 @@ Make the content professional, informative, and suitable for publication. Focus 
             <CardHeader>
               <CardTitle className="flex items-center justify-center gap-2">
                 <Lightning size={24} className="text-accent" />
-                AI Content Generator
+                AI Content Creation Platform
               </CardTitle>
               <CardDescription>
-                Generate high-quality content in seconds
+                Create content and videos with intelligent AI assistance
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex gap-2">
-                <Input 
-                  placeholder="Enter your topic: 'sustainable technology trends'" 
-                  className="flex-1"
-                  value={inputTopic}
-                  onChange={(e) => setInputTopic(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && generateMainContent()}
-                />
-                <Button 
-                  onClick={generateMainContent}
-                  disabled={isMainGenerating || !inputTopic.trim()}
-                >
-                  {isMainGenerating ? (
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    'Generate'
-                  )}
-                </Button>
-              </div>
-              <div className="bg-muted p-4 rounded-lg text-left min-h-[200px]">
-                {isMainGenerating ? (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="flex items-center space-x-2 text-muted-foreground">
-                      <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                      <span>Generating content with AI...</span>
-                    </div>
+            <CardContent>
+              <Tabs defaultValue="content" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="content" className="flex items-center gap-2">
+                    <FileText size={16} />
+                    Content Generator
+                  </TabsTrigger>
+                  <TabsTrigger value="video" className="flex items-center gap-2">
+                    <Video size={16} />
+                    Video Creation
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="content" className="space-y-4 mt-6">
+                  <div className="flex gap-2">
+                    <Input 
+                      placeholder="Enter your topic: 'sustainable technology trends'" 
+                      className="flex-1"
+                      value={inputTopic}
+                      onChange={(e) => setInputTopic(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && generateMainContent()}
+                    />
+                    <Button 
+                      onClick={generateMainContent}
+                      disabled={isMainGenerating || !inputTopic.trim()}
+                    >
+                      {isMainGenerating ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        'Generate'
+                      )}
+                    </Button>
                   </div>
-                ) : generatedContent ? (
-                  <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground">AI-Generated Content:</p>
-                    <div className="bg-background p-4 rounded-lg border max-h-96 overflow-y-auto">
-                      <div className="prose prose-sm max-w-none">
-                        {generatedContent.split('\n').map((line, lineIndex) => {
-                          if (line.startsWith('# ')) {
-                            return <h1 key={lineIndex} className="text-lg font-bold mb-3 text-foreground">{line.slice(2)}</h1>
-                          } else if (line.startsWith('## ')) {
-                            return <h2 key={lineIndex} className="text-base font-semibold mb-2 mt-4 text-foreground">{line.slice(3)}</h2>
-                          } else if (line.startsWith('**') && line.endsWith('**')) {
-                            return <p key={lineIndex} className="font-semibold mb-2 text-foreground">{line.slice(2, -2)}</p>
-                          } else if (line.trim()) {
-                            return <p key={lineIndex} className="mb-2 text-muted-foreground">{line}</p>
-                          } else {
-                            return <br key={lineIndex} />
-                          }
-                        })}
+                  <div className="bg-muted p-4 rounded-lg text-left min-h-[200px]">
+                    {isMainGenerating ? (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="flex items-center space-x-2 text-muted-foreground">
+                          <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                          <span>Generating content with AI...</span>
+                        </div>
                       </div>
-                    </div>
+                    ) : generatedContent ? (
+                      <div className="space-y-3">
+                        <p className="text-sm text-muted-foreground">AI-Generated Content:</p>
+                        <div className="bg-background p-4 rounded-lg border max-h-96 overflow-y-auto">
+                          <div className="prose prose-sm max-w-none">
+                            {generatedContent.split('\n').map((line, lineIndex) => {
+                              if (line.startsWith('# ')) {
+                                return <h1 key={lineIndex} className="text-lg font-bold mb-3 text-foreground">{line.slice(2)}</h1>
+                              } else if (line.startsWith('## ')) {
+                                return <h2 key={lineIndex} className="text-base font-semibold mb-2 mt-4 text-foreground">{line.slice(3)}</h2>
+                              } else if (line.startsWith('**') && line.endsWith('**')) {
+                                return <p key={lineIndex} className="font-semibold mb-2 text-foreground">{line.slice(2, -2)}</p>
+                              } else if (line.trim()) {
+                                return <p key={lineIndex} className="mb-2 text-muted-foreground">{line}</p>
+                              } else {
+                                return <br key={lineIndex} />
+                              }
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="text-center">
+                          <p className="text-sm text-muted-foreground mb-2">Sample Generated Content Preview:</p>
+                          <p className="text-foreground italic">
+                            "Sustainable technology is reshaping industries worldwide, from renewable energy solutions 
+                            to eco-friendly manufacturing processes. As businesses prioritize environmental responsibility..."
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-3">Enter a topic above to generate real AI content</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-2">Sample Generated Content Preview:</p>
-                      <p className="text-foreground italic">
-                        "Sustainable technology is reshaping industries worldwide, from renewable energy solutions 
-                        to eco-friendly manufacturing processes. As businesses prioritize environmental responsibility..."
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-3">Enter a topic above to generate real AI content</p>
-                    </div>
-                  </div>
-                )}
-              </div>
+                </TabsContent>
+                
+                <TabsContent value="video" className="mt-6">
+                  <VideoCreationHub />
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         </div>
@@ -534,12 +555,17 @@ Make the content professional, informative, and suitable for publication. Focus 
               </CardHeader>
             </Card>
 
-            <Card className="group hover:shadow-lg transition-all duration-300">
+            <Card className="group hover:shadow-lg transition-all duration-300 border-2 border-amber-200">
               <CardHeader>
-                <TrendUp size={48} className="text-accent mb-4 group-hover:scale-110 transition-transform" />
-                <CardTitle>Trend Analysis</CardTitle>
+                <div className="flex items-center justify-between mb-4">
+                  <Video size={48} className="text-primary group-hover:scale-110 transition-transform" />
+                  <Badge variant="secondary" className="bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800">
+                    Premium
+                  </Badge>
+                </div>
+                <CardTitle>AI Video Creation</CardTitle>
                 <CardDescription>
-                  Stay ahead with AI-powered trend detection and content recommendations
+                  Transform scripts into professional videos with AI-powered video generation
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -551,10 +577,10 @@ Make the content professional, informative, and suitable for publication. Focus 
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-4xl font-bold mb-6">
-            Ready to Transform Your Content Strategy?
+            Ready to Transform Your Content & Video Strategy?
           </h2>
           <p className="text-xl text-muted-foreground mb-8">
-            Join thousands of creators who are already using ContentFlow AI to scale their content production
+            Join thousands of creators using ContentFlow AI to scale content production and create professional videos
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="text-lg px-8" onClick={handleStartFreeTrial}>
@@ -628,6 +654,10 @@ Make the content professional, informative, and suitable for publication. Focus 
                   </div>
                   <div className="flex items-center text-sm">
                     <CheckCircle size={16} className="text-green-500 mr-2" />
+                    Video script generation
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <CheckCircle size={16} className="text-green-500 mr-2" />
                     Advanced SEO tools
                   </div>
                   <div className="flex items-center text-sm">
@@ -657,6 +687,10 @@ Make the content professional, informative, and suitable for publication. Focus 
                   <div className="flex items-center text-sm">
                     <CheckCircle size={16} className="text-green-500 mr-2" />
                     Unlimited generations
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <CheckCircle size={16} className="text-green-500 mr-2" />
+                    AI video generation
                   </div>
                   <div className="flex items-center text-sm">
                     <CheckCircle size={16} className="text-green-500 mr-2" />

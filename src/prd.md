@@ -24,17 +24,27 @@
    - Why: Core value proposition - save time and overcome creative blocks
    - Success: High-quality, relevant content output that users actually use
 
-2. **Content Optimization Tools**:
+2. **Video Script Generation**:
+   - What: AI-powered script creation for videos, including scene descriptions, dialogue, and timing
+   - Why: Video content is essential for modern marketing but script writing is time-consuming
+   - Success: Professional-quality scripts that users can immediately use for video production
+
+3. **AI Video Creation (Premium)**:
+   - What: Automated video generation from scripts using AI technology
+   - Why: Complete video creation pipeline from script to finished video
+   - Success: High-quality AI-generated videos that meet professional standards
+
+4. **Content Optimization Tools**:
    - What: SEO analysis, readability scoring, tone adjustment
    - Why: Helps users improve content performance and reach
    - Success: Measurable improvements in content metrics
 
-3. **Workflow Management**:
+5. **Workflow Management**:
    - What: Content calendar, project tracking, collaboration features
    - Why: Organizes the entire content creation process
    - Success: Users complete more content projects efficiently
 
-4. **Analytics & Insights**:
+6. **Analytics & Insights**:
    - What: Performance tracking, content recommendations, trend analysis
    - Why: Data-driven content strategy improvements
    - Success: Users make better content decisions based on insights
