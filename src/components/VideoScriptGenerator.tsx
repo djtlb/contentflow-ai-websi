@@ -24,7 +24,8 @@ import {
   Star,
   Lightning,
   Lightbulb,
-  Trophy
+  Trophy,
+  Calendar
 } from "@phosphor-icons/react"
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
@@ -52,6 +53,13 @@ interface VideoScript {
   createdAt: string
   campaignType?: string
   keyMessages?: string[]
+  marketingInsights?: {
+    targetPainPoints?: string[]
+    persuasionTechniques?: string[]
+    brandingElements?: string
+    estimatedEngagement?: 'low' | 'medium' | 'high'
+    recommendedPlatforms?: string[]
+  }
 }
 
 interface VideoScriptGeneratorProps {
@@ -83,7 +91,23 @@ export function VideoScriptGenerator({ onCreateVideo }: VideoScriptGeneratorProp
   const [savedScripts, setSavedScripts] = useKV<VideoScript[]>("video-scripts", [])
   const [activeTab, setActiveTab] = useState("templates")
 
-  // Marketing campaign templates
+  // Platform recommendation logic
+  const getPlatformRecommendations = (duration: number, category: string): string[] => {
+    const platforms: string[] = []
+    
+    if (duration <= 15) platforms.push('TikTok', 'Instagram Reels')
+    if (duration <= 60) platforms.push('YouTube Shorts', 'Twitter/X', 'LinkedIn')
+    if (duration <= 120) platforms.push('Instagram', 'Facebook', 'YouTube')
+    if (duration > 120) platforms.push('YouTube', 'Website', 'Email Marketing')
+    
+    if (category === 'sales') platforms.push('Landing Pages', 'Email Campaigns')
+    if (category === 'education') platforms.push('YouTube', 'LinkedIn Learning')
+    if (category === 'awareness') platforms.push('Social Media', 'Display Ads')
+    
+    return [...new Set(platforms)] // Remove duplicates
+  }
+
+  // Professional marketing campaign templates
   const campaignTemplates: CampaignTemplate[] = [
     {
       id: 'product-launch',
@@ -93,7 +117,7 @@ export function VideoScriptGenerator({ onCreateVideo }: VideoScriptGeneratorProp
       category: 'awareness',
       suggestedDuration: '60',
       suggestedTone: 'exciting',
-      promptTemplate: 'Create a product launch video script that builds excitement and clearly communicates the unique value proposition'
+      promptTemplate: 'Create a high-impact product launch video script that builds anticipation, clearly communicates unique value propositions, and drives early adoption. Focus on problem-solution fit and competitive advantages.'
     },
     {
       id: 'brand-story',
@@ -103,7 +127,7 @@ export function VideoScriptGenerator({ onCreateVideo }: VideoScriptGeneratorProp
       category: 'awareness',
       suggestedDuration: '120',
       suggestedTone: 'inspirational',
-      promptTemplate: 'Develop a compelling brand story that connects emotionally with viewers and communicates core values'
+      promptTemplate: 'Develop a compelling brand narrative that connects emotionally with viewers, communicates core values, and builds authentic connections. Include founder story, mission, and customer impact.'
     },
     {
       id: 'sales-conversion',
@@ -113,7 +137,7 @@ export function VideoScriptGenerator({ onCreateVideo }: VideoScriptGeneratorProp
       category: 'sales',
       suggestedDuration: '45',
       suggestedTone: 'persuasive',
-      promptTemplate: 'Create a high-converting sales script that addresses pain points and drives immediate action'
+      promptTemplate: 'Create a high-converting sales script using proven frameworks (AIDA, PAS). Address pain points, present solutions, handle objections, and include compelling calls-to-action with urgency and scarcity.'
     },
     {
       id: 'social-proof',
@@ -123,7 +147,7 @@ export function VideoScriptGenerator({ onCreateVideo }: VideoScriptGeneratorProp
       category: 'sales',
       suggestedDuration: '90',
       suggestedTone: 'authentic',
-      promptTemplate: 'Build a testimonial-focused script that showcases real customer success and builds trust'
+      promptTemplate: 'Build a testimonial-focused script that showcases real customer transformations, specific results, and builds trust through authentic stories. Include before/after scenarios and quantifiable outcomes.'
     },
     {
       id: 'how-to-tutorial',
@@ -133,7 +157,7 @@ export function VideoScriptGenerator({ onCreateVideo }: VideoScriptGeneratorProp
       category: 'education',
       suggestedDuration: '180',
       suggestedTone: 'educational',
-      promptTemplate: 'Create a step-by-step tutorial that educates viewers while subtly promoting your solution'
+      promptTemplate: 'Create a comprehensive step-by-step tutorial that provides genuine value while subtly showcasing your expertise and solutions. Focus on actionable insights and clear instructions.'
     },
     {
       id: 'comparison',
@@ -143,7 +167,7 @@ export function VideoScriptGenerator({ onCreateVideo }: VideoScriptGeneratorProp
       category: 'sales',
       suggestedDuration: '75',
       suggestedTone: 'professional',
-      promptTemplate: 'Develop a comparison script that professionally highlights competitive advantages'
+      promptTemplate: 'Develop a professional comparison script that objectively highlights competitive advantages without negative competitor mentions. Focus on unique benefits and superior value propositions.'
     },
     {
       id: 'behind-scenes',
@@ -153,7 +177,7 @@ export function VideoScriptGenerator({ onCreateVideo }: VideoScriptGeneratorProp
       category: 'engagement',
       suggestedDuration: '90',
       suggestedTone: 'casual',
-      promptTemplate: 'Create an authentic behind-the-scenes script that humanizes your brand'
+      promptTemplate: 'Create an authentic behind-the-scenes script that humanizes your brand, shows company culture, and builds personal connections with your audience through transparency and relatability.'
     },
     {
       id: 'announcement',
@@ -163,7 +187,47 @@ export function VideoScriptGenerator({ onCreateVideo }: VideoScriptGeneratorProp
       category: 'awareness',
       suggestedDuration: '60',
       suggestedTone: 'professional',
-      promptTemplate: 'Craft a clear and engaging announcement that communicates important company news'
+      promptTemplate: 'Craft a clear and engaging announcement that communicates important company news, explains impact on customers, and maintains positive brand perception during changes.'
+    },
+    {
+      id: 'explainer-demo',
+      name: 'Product Demo & Explainer',
+      description: 'Showcase product features and benefits in action',
+      icon: <Play size={20} className="text-green-600" />,
+      category: 'education',
+      suggestedDuration: '120',
+      suggestedTone: 'educational',
+      promptTemplate: 'Create a product demonstration script that clearly shows features, benefits, and use cases. Focus on solving customer problems and demonstrating value through practical examples.'
+    },
+    {
+      id: 'recruitment',
+      name: 'Recruitment & Hiring',
+      description: 'Attract top talent with compelling company culture content',
+      icon: <Users size={20} className="text-purple-600" />,
+      category: 'awareness',
+      suggestedDuration: '90',
+      suggestedTone: 'inspirational',
+      promptTemplate: 'Develop a recruitment-focused script that showcases company culture, growth opportunities, and mission. Appeal to top talent by highlighting unique benefits and career development.'
+    },
+    {
+      id: 'event-promotion',
+      name: 'Event Promotion',
+      description: 'Drive registrations and attendance for events',
+      icon: <Calendar size={20} className="text-orange-600" />,
+      category: 'awareness',
+      suggestedDuration: '60',
+      suggestedTone: 'urgent',
+      promptTemplate: 'Create an event promotion script that builds excitement, communicates value, and drives registration. Include speaker highlights, agenda benefits, and clear registration calls-to-action.'
+    },
+    {
+      id: 'customer-success',
+      name: 'Customer Success Story',
+      description: 'Showcase customer transformations and results',
+      icon: <TrendUp size={20} className="text-emerald-600" />,
+      category: 'sales',
+      suggestedDuration: '120',
+      suggestedTone: 'authentic',
+      promptTemplate: 'Build a customer success story that follows a narrative arc: challenge, solution, transformation. Include specific metrics, quotes, and before/after scenarios to build credibility.'
     }
   ]
 
@@ -189,75 +253,88 @@ export function VideoScriptGenerator({ onCreateVideo }: VideoScriptGeneratorProp
       // Get selected template for enhanced prompting
       const selectedTemplate = campaignTemplates.find(t => t.id === campaignType)
       
-      // Enhanced prompt for marketing campaigns
-      const prompt = spark.llmPrompt`Generate a comprehensive marketing video script with the following requirements:
+      // Enhanced prompt for professional marketing campaigns
+      const prompt = spark.llmPrompt`Generate a professional marketing video script optimized for ${selectedTemplate ? selectedTemplate.category : 'general marketing'} campaigns.
 
-**Campaign Details:**
+**Campaign Requirements:**
 Topic: ${topic}
-Campaign Type: ${selectedTemplate ? selectedTemplate.name : 'Custom'}
+Campaign Type: ${selectedTemplate ? selectedTemplate.name : 'Custom Campaign'}
 Duration: ${duration} seconds
-Target Audience: ${audience || "General audience"}
+Target Audience: ${audience || "General business audience"}
 Tone: ${tone}
+Marketing Objective: ${selectedTemplate ? selectedTemplate.category : 'conversion'}
 
-**Marketing Focus:**
+**Product/Service Context:**
 ${productService ? `Product/Service: ${productService}` : ''}
-${keyBenefits ? `Key Benefits: ${keyBenefits}` : ''}
-${callToAction ? `Desired Action: ${callToAction}` : ''}
+${keyBenefits ? `Key Benefits/Features: ${keyBenefits}` : ''}
+${callToAction ? `Primary Call-to-Action: ${callToAction}` : ''}
 
-**Template Context:**
-${selectedTemplate ? selectedTemplate.promptTemplate : 'Create a compelling marketing video script'}
+**Marketing Strategy:**
+${selectedTemplate ? selectedTemplate.promptTemplate : 'Create a compelling marketing video script that drives engagement and conversions'}
 
-Create a marketing-focused video script with the following structure:
-1. A compelling, attention-grabbing title
-2. An engaging hook (first 3-5 seconds)
-3. 4-6 scenes that fit within the ${duration} second duration
-4. For each scene, provide:
-   - Scene title
-   - Marketing objective (awareness, consideration, conversion)
-   - Description of what happens
-   - Estimated duration (distribute across ${duration} seconds total)
-   - Dialogue/narration text (compelling and persuasive)
-   - Visual descriptions optimized for ${selectedTemplate ? selectedTemplate.category : 'marketing'} content
-   - Call-to-action elements where appropriate
+**Professional Requirements:**
+1. Follow proven marketing frameworks (AIDA, PAS, Problem-Solution)
+2. Include psychological triggers and persuasion techniques
+3. Optimize for the specified duration with natural pacing
+4. Create compelling hooks that capture attention within 3 seconds
+5. Address target audience pain points and desires
+6. Include social proof elements where appropriate
+7. Build clear value propositions throughout
+8. End with strong, specific calls-to-action
 
-**Marketing Requirements:**
-- Focus on customer benefits and value proposition
-- Include emotional triggers appropriate for the target audience
-- Maintain consistent brand messaging throughout
-- Optimize for the specified campaign type
-- Include clear next steps for viewers
+**Script Structure Requirements:**
+- Compelling title optimized for ${selectedTemplate ? selectedTemplate.category : 'marketing'}
+- Attention-grabbing hook (first 3-5 seconds)
+- 4-7 scenes distributed across ${duration} seconds
+- Each scene must include:
+  * Clear marketing objective (awareness/consideration/conversion)
+  * Compelling dialogue with emotional triggers
+  * Professional visual direction for video production
+  * Strategic placement of key messages
+  * Call-to-action elements where appropriate
 
-The script should be professional, engaging, and designed to drive specific marketing outcomes.
+**Content Guidelines:**
+- Use active voice and action-oriented language
+- Include specific benefits rather than features
+- Address objections naturally within the script
+- Create urgency and scarcity where appropriate for ${tone} tone
+- Ensure consistent brand messaging throughout
+- Optimize for ${selectedTemplate ? selectedTemplate.category : 'marketing'} goals
 
-Format the response as JSON with this structure:
+Format as JSON with this exact structure:
 {
-  "title": "Compelling Marketing Video Title",
-  "hook": "Attention-grabbing opening (3-5 seconds)",
+  "title": "Professional marketing video title optimized for engagement",
+  "hook": "Compelling 3-5 second opening that immediately captures attention and addresses a key pain point or desire",
   "scenes": [
     {
-      "title": "Scene Name",
-      "objective": "Marketing objective (awareness/consideration/conversion)",
-      "description": "What happens in this scene",
+      "title": "Descriptive scene name",
+      "objective": "awareness|consideration|conversion",
+      "description": "Clear description of what happens in this scene",
       "duration": "10s",
-      "dialogue": "Persuasive dialogue/narration for this scene",
-      "visuals": "Marketing-optimized visual descriptions and camera directions",
-      "ctaElements": "Any call-to-action elements in this scene"
+      "dialogue": "Compelling, persuasive dialogue that moves the viewer through the marketing funnel",
+      "visuals": "Professional visual descriptions with specific camera angles, lighting, and production notes",
+      "ctaElements": "Specific call-to-action elements, on-screen text, or interactive components"
     }
   ],
-  "callToAction": "Strong closing call to action",
-  "keyMessages": ["Main message 1", "Main message 2", "Main message 3"]
+  "callToAction": "Strong, specific closing call-to-action with clear next steps",
+  "keyMessages": ["Primary value proposition", "Key differentiator", "Emotional benefit"],
+  "marketingNotes": {
+    "targetPainPoints": ["Primary pain point addressed", "Secondary concern resolved"],
+    "persuasionTechniques": ["Technique 1 used", "Technique 2 applied"],
+    "brandingElements": "Key branding elements to emphasize"
+  }
 }`
 
       const response = await spark.llm(prompt, "gpt-4o", true)
       const scriptData = JSON.parse(response)
       
-      // Create the enhanced video script object
+      // Create the enhanced video script object with professional marketing data
       const newScript: VideoScript = {
         id: Date.now().toString(),
         title: scriptData.title,
         topic,
         duration,
-        audience: audience || "General audience",
+        audience: audience || "General business audience",
         tone,
         script: `${scriptData.hook}\n\n${scriptData.scenes.map((scene: any) => scene.dialogue).join('\n\n')}\n\n${scriptData.callToAction}`,
         scenes: scriptData.scenes.map((scene: any, index: number) => ({
@@ -271,13 +348,21 @@ Format the response as JSON with this structure:
           ctaElements: scene.ctaElements || ''
         })),
         createdAt: new Date().toISOString(),
-        campaignType: selectedTemplate?.name || 'Custom',
-        keyMessages: scriptData.keyMessages || []
+        campaignType: selectedTemplate?.name || 'Custom Campaign',
+        keyMessages: scriptData.keyMessages || [],
+        marketingInsights: {
+          targetPainPoints: scriptData.marketingNotes?.targetPainPoints || [],
+          persuasionTechniques: scriptData.marketingNotes?.persuasionTechniques || [],
+          brandingElements: scriptData.marketingNotes?.brandingElements || '',
+          estimatedEngagement: selectedTemplate?.category === 'sales' ? 'high' : 
+                             selectedTemplate?.category === 'awareness' ? 'medium' : 'high',
+          recommendedPlatforms: getPlatformRecommendations(parseInt(duration), selectedTemplate?.category || 'awareness')
+        }
       }
 
       setGeneratedScript(newScript)
-      toast.success("Marketing video script generated!", {
-        description: "Your professional marketing script is ready for production."
+      toast.success("Professional marketing script generated!", {
+        description: `${selectedTemplate ? selectedTemplate.name : 'Custom'} campaign script ready for production.`
       })
     } catch (error) {
       console.error('Script generation failed:', error)
@@ -386,34 +471,48 @@ ${scene.ctaElements}` : ''}
                 <p className="text-muted-foreground">Select a template optimized for your specific marketing goals</p>
               </div>
               
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {campaignTemplates.map((template) => (
                   <Card 
                     key={template.id} 
-                    className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:border-primary group"
+                    className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:border-primary group relative overflow-hidden"
                     onClick={() => handleTemplateSelect(template)}
                   >
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between mb-2">
-                        {template.icon}
-                        <Badge variant="secondary" className="text-xs">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <CardHeader className="pb-3 relative">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="p-2 rounded-lg bg-muted group-hover:bg-primary/10 transition-colors">
+                          {template.icon}
+                        </div>
+                        <Badge 
+                          variant="secondary" 
+                          className={`text-xs capitalize ${
+                            template.category === 'sales' ? 'bg-green-100 text-green-800' :
+                            template.category === 'awareness' ? 'bg-blue-100 text-blue-800' :
+                            template.category === 'education' ? 'bg-purple-100 text-purple-800' :
+                            'bg-orange-100 text-orange-800'
+                          }`}
+                        >
                           {template.category}
                         </Badge>
                       </div>
-                      <CardTitle className="text-base group-hover:text-primary transition-colors">
+                      <CardTitle className="text-base group-hover:text-primary transition-colors leading-tight">
                         {template.name}
                       </CardTitle>
-                      <CardDescription className="text-sm">
+                      <CardDescription className="text-sm line-clamp-2">
                         {template.description}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="pt-0">
+                    <CardContent className="pt-0 relative">
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Clock size={12} />
                           {template.suggestedDuration}s
                         </span>
-                        <span className="capitalize">{template.suggestedTone}</span>
+                        <span className="capitalize font-medium">{template.suggestedTone}</span>
+                      </div>
+                      <div className="mt-2 text-xs text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                        Click to use template →
                       </div>
                     </CardContent>
                   </Card>
@@ -617,6 +716,56 @@ ${scene.ctaElements}` : ''}
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Marketing Insights */}
+            {generatedScript.marketingInsights && (
+              <div>
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <TrendUp size={18} className="text-primary" />
+                  Marketing Performance Insights
+                </h4>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {generatedScript.marketingInsights.recommendedPlatforms && (
+                    <div className="bg-muted/50 p-4 rounded-lg">
+                      <h5 className="font-medium mb-2 text-sm">Recommended Platforms</h5>
+                      <div className="flex flex-wrap gap-1">
+                        {generatedScript.marketingInsights.recommendedPlatforms.map((platform, index) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {platform}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div className="bg-muted/50 p-4 rounded-lg">
+                    <h5 className="font-medium mb-2 text-sm">Engagement Prediction</h5>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-3 h-3 rounded-full ${
+                        generatedScript.marketingInsights.estimatedEngagement === 'high' ? 'bg-green-500' :
+                        generatedScript.marketingInsights.estimatedEngagement === 'medium' ? 'bg-yellow-500' :
+                        'bg-gray-500'
+                      }`} />
+                      <span className="text-sm capitalize font-medium">
+                        {generatedScript.marketingInsights.estimatedEngagement} Engagement Expected
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                {generatedScript.marketingInsights.targetPainPoints && generatedScript.marketingInsights.targetPainPoints.length > 0 && (
+                  <div className="mt-4 bg-muted/50 p-4 rounded-lg">
+                    <h5 className="font-medium mb-2 text-sm">Target Pain Points Addressed</h5>
+                    <div className="space-y-1">
+                      {generatedScript.marketingInsights.targetPainPoints.map((point, index) => (
+                        <div key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <div className="w-1.5 h-1.5 bg-accent rounded-full" />
+                          {point}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Key Messages */}
             {generatedScript.keyMessages && generatedScript.keyMessages.length > 0 && (
               <div>

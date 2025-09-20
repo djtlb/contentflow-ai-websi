@@ -166,39 +166,55 @@ Make the content professional, informative, and suitable for publication. Keep i
       const videoScriptPrompt = spark.llmPrompt`Generate a professional marketing video script for "Sustainable Technology Trends in 2024" campaign:
 
 Duration: 60 seconds
-Target Audience: Business decision makers and sustainability professionals
+Target Audience: Business professionals and decision makers
 Tone: Professional yet engaging
-Campaign Type: Educational Awareness
+Campaign Type: Product Launch & Awareness
 
-Create a marketing-focused video script with:
-1. Compelling title
-2. Attention-grabbing hook (first 5 seconds)
-3. 4-5 scenes that tell a complete story
+Create a comprehensive marketing video script with:
+1. Compelling title optimized for business impact
+2. Attention-grabbing hook (first 3 seconds)
+3. 5-6 scenes that tell a complete marketing story
 4. Each scene should include:
-   - Scene title and marketing objective
+   - Scene title and marketing objective (awareness/consideration/conversion)
    - Duration (distribute across 60 seconds)
-   - Compelling dialogue/narration
-   - Visual descriptions for professional video production
-   - Clear call-to-action elements
+   - Compelling dialogue/narration with psychological triggers
+   - Professional visual descriptions for high-end video production
+   - Strategic call-to-action elements
+   - Persuasion techniques (social proof, urgency, benefits)
 
-Make it persuasive, informative, and designed for business impact.
+**Marketing Requirements:**
+- Focus on clear value propositions and customer benefits
+- Include emotional triggers appropriate for business audience
+- Address potential objections within the narrative
+- Build credibility through professional presentation
+- Drive specific business outcomes and conversions
+- Optimize for multiple distribution channels
+
+Make it highly persuasive, results-driven, and designed for maximum business impact.
 
 Format as JSON:
 {
-  "title": "Video Title",
-  "hook": "Opening hook",
+  "title": "Professional Marketing Video Title",
+  "hook": "Compelling 3-second business-focused opening",
   "totalDuration": "60s",
   "scenes": [
     {
       "title": "Scene Name",
       "objective": "awareness/consideration/conversion",
-      "duration": "12s",
-      "dialogue": "Compelling narration",
-      "visuals": "Professional visual descriptions",
-      "ctaElements": "Call-to-action elements"
+      "duration": "10s",
+      "dialogue": "Persuasive professional narration with business benefits",
+      "visuals": "High-end professional visual descriptions and production notes",
+      "ctaElements": "Strategic call-to-action elements and on-screen text",
+      "persuasionTechniques": "Specific persuasion methods used"
     }
   ],
-  "callToAction": "Strong closing CTA"
+  "callToAction": "Strong business-focused closing CTA with clear next steps",
+  "keyMessages": ["Primary value prop", "Key differentiator", "Business benefit"],
+  "marketingNotes": {
+    "targetPainPoints": ["Business pain point 1", "Challenge addressed"],
+    "persuasionTechniques": ["Social proof", "Authority positioning"],
+    "brandingElements": "Professional branding emphasis"
+  }
 }`
 
       // Generate both pieces of content simultaneously for demo
@@ -215,36 +231,53 @@ Format as JSON:
         {
           title: "Final Result",
           description: "Your AI-generated content and video script are ready",
-          content: `# Content Created Successfully!
+          content: `# Professional Marketing Campaign Generated Successfully!
 
 ## Article Content:
 ${aiContent}
 
 ---
 
-## Professional Video Script: ${videoScript.title}
+## Professional Marketing Video Script: ${videoScript.title}
 
-**Hook (Opening 5 seconds):**
+**Campaign Type:** Product Launch & Awareness
+**Target Audience:** Business professionals and decision makers
+**Estimated Engagement:** High (optimized for business impact)
+
+**Hook (Opening 3 seconds):**
 ${videoScript.hook}
 
-**Complete Video Script:**
+**Key Marketing Messages:**
+${videoScript.keyMessages ? videoScript.keyMessages.map((msg: string) => `• ${msg}`).join('\n') : ''}
+
+**Complete Professional Video Script:**
 ${videoScript.scenes.map((scene: any, index: number) => `
 **Scene ${index + 1}: ${scene.title}** (${scene.duration})
-*Objective: ${scene.objective}*
+*Marketing Objective: ${scene.objective}*
+*Persuasion Technique: ${scene.persuasionTechniques || 'Professional positioning'}*
 
 Dialogue: ${scene.dialogue}
 
-Visuals: ${scene.visuals}
+Visual Production Notes: ${scene.visuals}
 
-${scene.ctaElements ? `CTA Elements: ${scene.ctaElements}` : ''}
+${scene.ctaElements ? `Strategic CTAs: ${scene.ctaElements}` : ''}
 `).join('')}
 
 **Closing Call-to-Action:**
 ${videoScript.callToAction}
 
+**Marketing Performance Insights:**
+${videoScript.marketingNotes ? `
+• Target Pain Points: ${videoScript.marketingNotes.targetPainPoints?.join(', ') || 'Business efficiency challenges'}
+• Persuasion Methods: ${videoScript.marketingNotes.persuasionTechniques?.join(', ') || 'Authority and social proof'}
+• Branding Focus: ${videoScript.marketingNotes.brandingElements || 'Professional credibility and innovation'}
+` : ''}
+
+**Recommended Platforms:** YouTube, LinkedIn, Website, Email Campaigns, Sales Presentations
+
 ---
 
-*Both your article content and professional video script are ready for immediate use in your marketing campaigns!*`
+*Both your professional article content and marketing video script are optimized for maximum business impact and ready for immediate deployment across your marketing channels!*`
         }
       ])
       
