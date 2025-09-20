@@ -15,6 +15,7 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext'
 import { AuthDialog } from '@/components/AuthDialog'
 import { UserMenu } from '@/components/UserMenu'
 import { VideoCreationHub } from '@/components/VideoCreationHub'
+import { ContentLibrary } from '@/components/ContentLibrary'
 import { ErrorFallback } from './ErrorFallback'
 
 // Declare spark global for TypeScript
@@ -45,6 +46,7 @@ function AppContent() {
   const [generatedContent, setGeneratedContent] = useState("")
   const [inputTopic, setInputTopic] = useState("")
   const [isMainGenerating, setIsMainGenerating] = useState(false)
+  const [currentPage, setCurrentPage] = useState<'home' | 'library'>('home')
 
   // Scroll to section function
   const scrollToSection = (sectionId: string) => {
@@ -322,8 +324,34 @@ Make the content professional, informative, and suitable for publication. Focus 
       // Generate content using Spark LLM
       const aiContent = await spark.llm(prompt)
       setGeneratedContent(aiContent)
-      toast.success("Content generated successfully!", {
-        description: "Your AI-powered content is ready to use."
+      
+      // Save content to library
+      const contentItem = {
+        id: Date.now().toString(),
+        title: inputTopic.charAt(0).toUpperCase() + inputTopic.slice(1),
+        content: aiContent,
+        type: 'article' as const,
+        category: 'Generated Content',
+        tags: inputTopic.split(' ').filter(word => word.length > 2),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        isFavorite: false,
+        wordCount: aiContent.split(' ').length,
+        status: 'draft' as const,
+        metadata: {
+          seo_keywords: inputTopic.split(' '),
+          target_audience: 'General audience'
+        }
+      }
+      
+      // Save to content library
+      await spark.kv.get<any[]>("content-library").then(async (existingContent) => {
+        const currentContent = existingContent || []
+        await spark.kv.set("content-library", [contentItem, ...currentContent])
+      })
+      
+      toast.success("Content generated and saved!", {
+        description: "Your AI-powered content is ready and saved to your library."
       })
     } catch (error) {
       console.error('Content generation failed:', error)
@@ -354,6 +382,22 @@ Make the content professional, informative, and suitable for publication. Focus 
               )}
             </div>
             <div className="hidden md:flex items-center space-x-8">
+              <button 
+                onClick={() => setCurrentPage('home')} 
+                className={`text-muted-foreground hover:text-foreground transition-colors cursor-pointer ${
+                  currentPage === 'home' ? 'text-foreground font-medium' : ''
+                }`}
+              >
+                Home
+              </button>
+              <button 
+                onClick={() => setCurrentPage('library')} 
+                className={`text-muted-foreground hover:text-foreground transition-colors cursor-pointer ${
+                  currentPage === 'library' ? 'text-foreground font-medium' : ''
+                }`}
+              >
+                Content Library
+              </button>
               <button 
                 onClick={() => scrollToSection('features')} 
                 className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
@@ -387,8 +431,15 @@ Make the content professional, informative, and suitable for publication. Focus 
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="py-20 lg:py-32">
+      {/* Conditional Page Rendering */}
+      {currentPage === 'library' ? (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <ContentLibrary />
+        </div>
+      ) : (
+        <>
+          {/* Hero Section */}
+          <section className="py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Badge variant="secondary" className="mb-6">
             <Sparkle size={16} className="mr-2" />
@@ -1050,6 +1101,8 @@ Make the content professional, informative, and suitable for publication. Focus 
 
       {/* Auth Dialog */}
       <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
+        </>
+      )}
     </div>
   )
 }
