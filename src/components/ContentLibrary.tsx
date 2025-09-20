@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 import { 
   FileText, 
   Video, 
@@ -23,7 +24,14 @@ import {
   Eye,
   Archive,
   FolderPlus,
-  Folder
+  Folder,
+  Export,
+  CheckSquare,
+  Square,
+  Tag,
+  ChartBar,
+  Brain,
+  Lightning
 } from "@phosphor-icons/react"
 import { toast } from 'sonner'
 import { useKV } from '@github/spark/hooks'
@@ -72,6 +80,9 @@ export function ContentLibrary() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
   const [selectedFolder, setSelectedFolder] = useState<string>("all")
   const [showFavorites, setShowFavorites] = useState(false)
+  const [selectedItems, setSelectedItems] = useState<string[]>([])
+  const [showBulkActions, setShowBulkActions] = useState(false)
+  const [showStats, setShowStats] = useState(false)
 
   // Combine content items and video scripts
   const allContent = useMemo(() => {
@@ -85,7 +96,7 @@ export function ContentLibrary() {
       tags: [script.tone, script.audience, script.duration + 's'].filter(Boolean),
       createdAt: script.createdAt,
       updatedAt: script.createdAt,
-      isFavorite: false,
+      isFavorite: script.isFavorite || false,
       wordCount: script.script ? script.script.split(' ').length : 100,
       status: 'draft' as const,
       metadata: {
@@ -230,6 +241,15 @@ export function ContentLibrary() {
         item.id === itemId ? { ...item, isFavorite: !item.isFavorite } : item
       )
     })
+    
+    // Also update video scripts if it's a video script
+    setVideoScripts(currentScripts => {
+      if (!currentScripts) return []
+      return currentScripts.map(script => 
+        script.id === itemId ? { ...script, isFavorite: !script.isFavorite } : script
+      )
+    })
+    
     toast.success("Updated favorites")
   }
 
@@ -238,6 +258,13 @@ export function ContentLibrary() {
       if (!currentItems) return []
       return currentItems.filter(item => item.id !== itemId)
     })
+    
+    // Also delete from video scripts if it's a video script
+    setVideoScripts(currentScripts => {
+      if (!currentScripts) return []
+      return currentScripts.filter(script => script.id !== itemId)
+    })
+    
     toast.success("Content deleted")
   }
 
@@ -276,6 +303,138 @@ export function ContentLibrary() {
     setSelectedItem(item)
     setViewDialogOpen(true)
   }
+
+  // Bulk actions
+  const toggleItemSelection = (itemId: string) => {
+    setSelectedItems(prev => 
+      prev.includes(itemId) 
+        ? prev.filter(id => id !== itemId)
+        : [...prev, itemId]
+    )
+  }
+
+  const selectAllItems = () => {
+    if (selectedItems.length === filteredContent.length) {
+      setSelectedItems([])
+    } else {
+      setSelectedItems(filteredContent.map(item => item.id))
+    }
+  }
+
+  const bulkDelete = () => {
+    setContentItems(currentItems => {
+      if (!currentItems) return []
+      return currentItems.filter(item => !selectedItems.includes(item.id))
+    })
+    setVideoScripts(currentScripts => {
+      if (!currentScripts) return []
+      return currentScripts.filter(script => !selectedItems.includes(script.id))
+    })
+    setSelectedItems([])
+    toast.success(`Deleted ${selectedItems.length} items`)
+  }
+
+  const bulkArchive = () => {
+    setContentItems(currentItems => {
+      if (!currentItems) return []
+      return currentItems.map(item => 
+        selectedItems.includes(item.id) 
+          ? { ...item, status: item.status === 'archived' ? 'draft' : 'archived' as const }
+          : item
+      )
+    })
+    setSelectedItems([])
+    toast.success(`Archived ${selectedItems.length} items`)
+  }
+
+  const bulkFavorite = () => {
+    setContentItems(currentItems => {
+      if (!currentItems) return []
+      return currentItems.map(item => 
+        selectedItems.includes(item.id) ? { ...item, isFavorite: true } : item
+      )
+    })
+    setVideoScripts(currentScripts => {
+      if (!currentScripts) return []
+      return currentScripts.map(script => 
+        selectedItems.includes(script.id) ? { ...script, isFavorite: true } : script
+      )
+    })
+    setSelectedItems([])
+    toast.success(`Added ${selectedItems.length} items to favorites`)
+  }
+
+  const exportContent = (format: 'json' | 'csv' | 'txt') => {
+    const itemsToExport = selectedItems.length > 0 
+      ? filteredContent.filter(item => selectedItems.includes(item.id))
+      : filteredContent
+
+    let content = ''
+    let filename = ''
+    let mimeType = ''
+
+    switch (format) {
+      case 'json':
+        content = JSON.stringify(itemsToExport, null, 2)
+        filename = 'content-library.json'
+        mimeType = 'application/json'
+        break
+      case 'csv':
+        const headers = 'Title,Type,Category,Status,Word Count,Created,Tags,Content Preview\n'
+        const rows = itemsToExport.map(item => 
+          `"${item.title}","${item.type}","${item.category}","${item.status}","${item.wordCount}","${item.createdAt}","${item.tags.join('; ')}","${item.content.slice(0, 100).replace(/"/g, '""')}..."`
+        ).join('\n')
+        content = headers + rows
+        filename = 'content-library.csv'
+        mimeType = 'text/csv'
+        break
+      case 'txt':
+        content = itemsToExport.map(item => 
+          `Title: ${item.title}\nType: ${item.type}\nCategory: ${item.category}\nCreated: ${item.createdAt}\n\nContent:\n${item.content}\n\n${'='.repeat(80)}\n\n`
+        ).join('')
+        filename = 'content-library.txt'
+        mimeType = 'text/plain'
+        break
+    }
+
+    const blob = new Blob([content], { type: mimeType })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    
+    toast.success(`Exported ${itemsToExport.length} items as ${format.toUpperCase()}`)
+  }
+
+  // Stats calculations
+  const stats = useMemo(() => {
+    if (!allContent) return { total: 0, byType: {}, byStatus: {}, totalWords: 0, avgWords: 0 }
+    
+    const byType = allContent.reduce((acc, item) => {
+      acc[item.type] = (acc[item.type] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
+    
+    const byStatus = allContent.reduce((acc, item) => {
+      acc[item.status] = (acc[item.status] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
+    
+    const totalWords = allContent.reduce((sum, item) => sum + item.wordCount, 0)
+    
+    return {
+      total: allContent.length,
+      byType,
+      byStatus,
+      totalWords,
+      avgWords: Math.round(totalWords / allContent.length) || 0,
+      favorites: allContent.filter(item => item.isFavorite).length
+    }
+  }, [allContent])
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -316,16 +475,125 @@ export function ContentLibrary() {
             Manage and organize all your AI-generated content
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Badge variant="secondary" className="text-sm">
             {filteredContent.length} of {allContent?.length || 0} items
           </Badge>
+          <Button onClick={() => setShowStats(!showStats)} variant="outline" size="sm">
+            <ChartBar size={16} className="mr-2" />
+            Stats
+          </Button>
           <Button onClick={() => setShowFavorites(!showFavorites)} variant={showFavorites ? "default" : "outline"} size="sm">
             <Star size={16} className="mr-2" />
             Favorites
           </Button>
+          {selectedItems.length > 0 && (
+            <Button onClick={() => setShowBulkActions(!showBulkActions)} variant="outline" size="sm">
+              <CheckSquare size={16} className="mr-2" />
+              Bulk ({selectedItems.length})
+            </Button>
+          )}
         </div>
       </div>
+
+      {/* Stats Panel */}
+      {showStats && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ChartBar size={20} />
+              Library Statistics
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary">{stats.total}</div>
+                <div className="text-sm text-muted-foreground">Total Items</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-accent">{stats.favorites}</div>
+                <div className="text-sm text-muted-foreground">Favorites</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary">{stats.totalWords.toLocaleString()}</div>
+                <div className="text-sm text-muted-foreground">Total Words</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-accent">{stats.avgWords}</div>
+                <div className="text-sm text-muted-foreground">Avg Words</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">{(stats.byStatus as any)?.published || 0}</div>
+                <div className="text-sm text-muted-foreground">Published</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-600">{(stats.byStatus as any)?.draft || 0}</div>
+                <div className="text-sm text-muted-foreground">Drafts</div>
+              </div>
+            </div>
+            
+            <Separator className="my-4" />
+            
+            <div className="space-y-2">
+              <h4 className="font-medium">Content Types</h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                {Object.entries(stats.byType).map(([type, count]) => (
+                  <div key={type} className="flex justify-between">
+                    <span className="capitalize">{type.replace('-', ' ')}</span>
+                    <Badge variant="secondary">{count}</Badge>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Bulk Actions Panel */}
+      {showBulkActions && selectedItems.length > 0 && (
+        <Card className="border-accent">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <CheckSquare size={20} />
+                Bulk Actions ({selectedItems.length} selected)
+              </span>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setSelectedItems([])}
+              >
+                Clear Selection
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" onClick={bulkFavorite}>
+                <Star size={16} className="mr-2" />
+                Add to Favorites
+              </Button>
+              <Button variant="outline" size="sm" onClick={bulkArchive}>
+                <Archive size={16} className="mr-2" />
+                Archive/Unarchive
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => exportContent('json')}>
+                <Export size={16} className="mr-2" />
+                Export JSON
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => exportContent('csv')}>
+                <Export size={16} className="mr-2" />
+                Export CSV
+              </Button>
+              <Button variant="destructive" size="sm" onClick={bulkDelete}>
+                <Trash size={16} className="mr-2" />
+                Delete Selected
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Filters and Search */}
       <Card>
@@ -392,6 +660,33 @@ export function ContentLibrary() {
               </Button>
             </div>
           </div>
+          
+          {/* Bulk selection controls */}
+          {filteredContent.length > 0 && (
+            <div className="flex items-center gap-4 pt-4 border-t">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="select-all"
+                  checked={selectedItems.length === filteredContent.length && filteredContent.length > 0}
+                  onCheckedChange={selectAllItems}
+                />
+                <label htmlFor="select-all" className="text-sm font-medium">
+                  Select all ({filteredContent.length})
+                </label>
+              </div>
+              
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => exportContent('json')}>
+                  <Export size={14} className="mr-2" />
+                  Export JSON
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => exportContent('csv')}>
+                  <Export size={14} className="mr-2" />
+                  Export CSV
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -402,6 +697,11 @@ export function ContentLibrary() {
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
+                  <Checkbox
+                    checked={selectedItems.includes(item.id)}
+                    onCheckedChange={() => toggleItemSelection(item.id)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  />
                   {getTypeIcon(item.type)}
                   <Badge variant="outline" className="text-xs">
                     {item.type.replace('-', ' ')}
