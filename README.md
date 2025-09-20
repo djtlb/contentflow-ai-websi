@@ -1,45 +1,23 @@
-# ContentFlow AI - Setup and Configuration
+# ✨ Welcome to Your Spark Template!
+You've just launched your brand-new Spark Template Codespace — everything’s fired up and ready for you to explore, build, and create with Spark!
 
-## Current Status
-✅ Application structure fixed and errors resolved
-✅ AuthDialog component restored
-✅ Supabase integration with demo mode fallback
-✅ All UI components properly configured
+This template is your blank canvas. It comes with a minimal setup to help you get started quickly with Spark development.
 
-## Environment Setup
+🚀 What's Inside?
+- A clean, minimal Spark environment
+- Pre-configured for local development
+- Ready to scale with your ideas
+  
+🧠 What Can You Do?
 
-### Option 1: Demo Mode (Current)
-The app will run in demo mode without authentication features if no Supabase credentials are provided.
+Right now, this is just a starting point — the perfect place to begin building and testing your Spark applications.
 
-### Option 2: Full Authentication (Recommended)
-1. Copy `.env.example` to `.env`
-2. Sign up for a free Supabase account at https://supabase.com
-3. Create a new project
-4. Go to Settings > API in your Supabase dashboard
-5. Replace the values in `.env` with your actual credentials:
-   ```
-   VITE_SUPABASE_URL=https://your-project-id.supabase.co
-   VITE_SUPABASE_ANON_KEY=your-anonymous-key
-   ```
+🧹 Just Exploring?
+No problem! If you were just checking things out and don’t need to keep this code:
 
-## Features
-- ✅ AI Content Generation (using Spark LLM API)
-- ✅ Interactive Demo with real AI content
-- ✅ Responsive Design
-- ✅ Authentication (when Supabase configured)
-- ✅ User Management
-- ✅ Modern UI Components
+- Simply delete your Spark.
+- Everything will be cleaned up — no traces left behind.
 
-## Technical Details
-- React 19 with TypeScript
-- Tailwind CSS + shadcn/ui components
-- Supabase for authentication
-- Spark LLM for AI content generation
-- Sonner for notifications
+📄 License For Spark Template Resources 
 
-## Next Steps
-1. Configure Supabase credentials for full authentication
-2. Customize branding and content
-3. Add additional features as needed
-
-The application is now fully functional and error-free!
+The Spark Template files and resources from GitHub are licensed under the terms of the MIT license, Copyright GitHub, Inc.
