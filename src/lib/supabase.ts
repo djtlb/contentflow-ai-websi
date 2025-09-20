@@ -8,7 +8,8 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'demo-anon-key
 const isDemoMode = supabaseUrl === 'https://demo-project.supabase.co' || 
                   supabaseAnonKey === 'demo-anon-key' ||
                   !import.meta.env.VITE_SUPABASE_URL ||
-                  !import.meta.env.VITE_SUPABASE_ANON_KEY
+                  !import.meta.env.VITE_SUPABASE_ANON_KEY ||
+                  supabaseAnonKey.includes('CYJYCYJY') // Check for truncated placeholder key
 
 // Create Supabase client with error handling for demo mode
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {

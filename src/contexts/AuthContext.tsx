@@ -36,7 +36,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const isDemoMode = import.meta.env.VITE_SUPABASE_URL === 'https://demo-project.supabase.co' || 
                       import.meta.env.VITE_SUPABASE_ANON_KEY === 'demo-anon-key' ||
                       !import.meta.env.VITE_SUPABASE_URL ||
-                      !import.meta.env.VITE_SUPABASE_ANON_KEY
+                      !import.meta.env.VITE_SUPABASE_ANON_KEY ||
+                      import.meta.env.VITE_SUPABASE_ANON_KEY.includes('CYJYCYJY') // Check for truncated placeholder key
 
     if (isDemoMode) {
       console.log('Running in demo mode - authentication disabled')

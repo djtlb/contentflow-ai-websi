@@ -16,12 +16,14 @@ This application uses Supabase for authentication. To fully configure authentica
 
 ## 3. Configure Environment Variables
 
-Create a `.env.local` file in your project root and add:
+Update the `.env` file in your project root with your real credentials:
 
 ```
-VITE_SUPABASE_URL=your_project_url_here
-VITE_SUPABASE_ANON_KEY=your_anon_key_here
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
+VITE_SUPABASE_ANON_KEY=your_real_anon_key_here
 ```
+
+**Important:** Replace `your-real-anon-key-here` in the `.env` file with your actual anon key from Supabase.
 
 ## 4. Configure OAuth Providers (Optional)
 
@@ -55,3 +57,11 @@ To enable Google and GitHub sign-in:
 ## Demo Mode
 
 The app will work in demo mode with placeholder credentials, but real authentication requires proper Supabase configuration.
+
+## Troubleshooting
+
+If you see authentication errors:
+1. Verify your Supabase URL and anon key are correct
+2. Check that your site URL is configured in Supabase
+3. Ensure the `.env` file is properly formatted
+4. Restart your development server after updating environment variables
