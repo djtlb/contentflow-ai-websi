@@ -1,12 +1,11 @@
 import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
-import { Eye, EyeSlash, GoogleLogo, GithubLogo, Envelope, Lock, User } from "@phosphor-icons/react"
 import { auth } from '@/lib/supabase'
 import { toast } from 'sonner'
 
@@ -16,8 +15,7 @@ interface AuthDialogProps {
 }
 
 export const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) => {
-  const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin')
-  const [showPassword, setShowPassword] = useState(false)
+  const [activeTab, setActiveTab] = useState<string>('signin')
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
@@ -35,6 +33,7 @@ export const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) =>
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
+    
     if (!formData.email || !formData.password) {
       toast.error('Please fill in all fields')
       return
@@ -50,10 +49,10 @@ export const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) =>
         })
       } else {
         toast.success('Welcome back!', {
-          description: 'You have been signed in successfully.'
+          description: 'You have successfully signed in.'
         })
-        onOpenChange(false)
         setFormData({ email: '', password: '', confirmPassword: '' })
+        onOpenChange(false)
       }
     } catch (error) {
       toast.error('An unexpected error occurred')
@@ -64,6 +63,7 @@ export const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) =>
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
+    
     if (!formData.email || !formData.password || !formData.confirmPassword) {
       toast.error('Please fill in all fields')
       return
@@ -143,188 +143,158 @@ export const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) =>
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'signin' | 'signup')} className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="signin">Sign In</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="signin" className="space-y-4">
+          <TabsContent value="signin">
             <Card>
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg">Sign in to your account</CardTitle>
+              <CardHeader>
+                <CardTitle>Sign In</CardTitle>
                 <CardDescription>
-                  Enter your credentials to access ContentFlow AI
+                  Enter your credentials to access your account
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
-                    <div className="relative">
-                      <Envelope size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        id="signin-email"
-                        name="email"
-                        type="email"
-                        placeholder="Enter your email"
-                        className="pl-10"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        disabled={loading}
-                      />
-                    </div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      disabled={loading}
+                      required
+                    />
                   </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password</Label>
-                    <div className="relative">
-                      <Lock size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        id="signin-password"
-                        name="password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
-                        className="pl-10 pr-10"
-                        value={formData.password}
-                        onChange={handleInputChange}
-                        disabled={loading}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      >
-                        {showPassword ? <EyeSlash size={18} /> : <Eye size={18} />}
-                      </button>
-                    </div>
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      name="password"
+                      type="password"
+                      placeholder="Enter your password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      disabled={loading}
+                      required
+                    />
                   </div>
-
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? (
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                    ) : null}
-                    Sign In
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        Signing in...
+                      </>
+                    ) : (
+                      'Sign In'
+                    )}
                   </Button>
                 </form>
 
-                <div className="space-y-3">
-                  <div className="relative">
-                    <Separator />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="bg-background px-2 text-muted-foreground text-sm">or continue with</span>
-                    </div>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <Separator className="w-full" />
                   </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                  </div>
+                </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button variant="outline" onClick={handleGoogleSignIn} disabled={loading}>
-                      <GoogleLogo size={18} className="mr-2" />
-                      Google
-                    </Button>
-                    <Button variant="outline" onClick={handleGitHubSignIn} disabled={loading}>
-                      <GithubLogo size={18} className="mr-2" />
-                      GitHub
-                    </Button>
-                  </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <Button variant="outline" onClick={handleGoogleSignIn} disabled={loading}>
+                    Google
+                  </Button>
+                  <Button variant="outline" onClick={handleGitHubSignIn} disabled={loading}>
+                    GitHub
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="signup" className="space-y-4">
+          <TabsContent value="signup">
             <Card>
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg">Create your account</CardTitle>
+              <CardHeader>
+                <CardTitle>Create Account</CardTitle>
                 <CardDescription>
-                  Join thousands of creators using ContentFlow AI
+                  Create a new account to get started
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">Email</Label>
-                    <div className="relative">
-                      <Envelope size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        id="signup-email"
-                        name="email"
-                        type="email"
-                        placeholder="Enter your email"
-                        className="pl-10"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        disabled={loading}
-                      />
-                    </div>
+                    <Input
+                      id="signup-email"
+                      name="email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      disabled={loading}
+                      required
+                    />
                   </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="signup-password">Password</Label>
-                    <div className="relative">
-                      <Lock size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        id="signup-password"
-                        name="password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Create a password (min. 6 characters)"
-                        className="pl-10 pr-10"
-                        value={formData.password}
-                        onChange={handleInputChange}
-                        disabled={loading}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      >
-                        {showPassword ? <EyeSlash size={18} /> : <Eye size={18} />}
-                      </button>
-                    </div>
+                    <Input
+                      id="signup-password"
+                      name="password"
+                      type="password"
+                      placeholder="Create a password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      disabled={loading}
+                      required
+                    />
                   </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="signup-confirm-password">Confirm Password</Label>
-                    <div className="relative">
-                      <Lock size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        id="signup-confirm-password"
-                        name="confirmPassword"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Confirm your password"
-                        className="pl-10"
-                        value={formData.confirmPassword}
-                        onChange={handleInputChange}
-                        disabled={loading}
-                      />
-                    </div>
+                    <Label htmlFor="confirm-password">Confirm Password</Label>
+                    <Input
+                      id="confirm-password"
+                      name="confirmPassword"
+                      type="password"
+                      placeholder="Confirm your password"
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      disabled={loading}
+                      required
+                    />
                   </div>
-
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? (
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                    ) : null}
-                    Create Account
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        Creating account...
+                      </>
+                    ) : (
+                      'Create Account'
+                    )}
                   </Button>
                 </form>
 
-                <div className="space-y-3">
-                  <div className="relative">
-                    <Separator />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="bg-background px-2 text-muted-foreground text-sm">or continue with</span>
-                    </div>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <Separator className="w-full" />
                   </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                  </div>
+                </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button variant="outline" onClick={handleGoogleSignIn} disabled={loading}>
-                      <GoogleLogo size={18} className="mr-2" />
-                      Google
-                    </Button>
-                    <Button variant="outline" onClick={handleGitHubSignIn} disabled={loading}>
-                      <GithubLogo size={18} className="mr-2" />
-                      GitHub
-                    </Button>
-                  </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <Button variant="outline" onClick={handleGoogleSignIn} disabled={loading}>
+                    Google
+                  </Button>
+                  <Button variant="outline" onClick={handleGitHubSignIn} disabled={loading}>
+                    GitHub
+                  </Button>
                 </div>
               </CardContent>
             </Card>
