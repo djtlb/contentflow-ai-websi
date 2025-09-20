@@ -14,10 +14,23 @@ import { AuthDialog } from '@/components/AuthDialog'
 import { UserMenu } from '@/components/UserMenu'
 
 // Declare spark global for TypeScript
-declare const spark: {
-  llmPrompt: (strings: TemplateStringsArray, ...values: any[]) => string
-  llm: (prompt: string, modelName?: string, jsonMode?: boolean) => Promise<string>
+declare global {
+  interface Window {
+    spark: {
+      llmPrompt: (strings: TemplateStringsArray, ...values: any[]) => string
+      llm: (prompt: string, modelName?: string, jsonMode?: boolean) => Promise<string>
+      user: () => Promise<any>
+      kv: {
+        keys: () => Promise<string[]>
+        get: <T>(key: string) => Promise<T | undefined>
+        set: <T>(key: string, value: T) => Promise<void>
+        delete: (key: string) => Promise<void>
+      }
+    }
+  }
 }
+
+declare const spark: Window['spark']
 
 function AppContent() {
   const { user, loading } = useAuth()

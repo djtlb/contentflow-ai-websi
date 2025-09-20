@@ -4,17 +4,20 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://demo-project.supabase.co'
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'demo-anon-key'
 
+// Check if we're in demo mode (no real Supabase credentials)
+const isDemoMode = supabaseUrl === 'https://demo-project.supabase.co' || 
+                  supabaseAnonKey === 'demo-anon-key' ||
+                  !import.meta.env.VITE_SUPABASE_URL ||
+                  !import.meta.env.VITE_SUPABASE_ANON_KEY
+
 // Create Supabase client with error handling for demo mode
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
+    autoRefreshToken: !isDemoMode,
+    persistSession: !isDemoMode,
+    detectSessionInUrl: !isDemoMode
   }
 })
-
-// Check if we're in demo mode (no real Supabase credentials)
-const isDemoMode = supabaseUrl === 'https://demo-project.supabase.co' || supabaseAnonKey === 'demo-anon-key'
 
 // Auth helper functions
 export const auth = {
@@ -23,15 +26,19 @@ export const auth = {
     if (isDemoMode) {
       return { 
         data: null, 
-        error: { message: 'Demo mode: Authentication not available. Please configure Supabase credentials.' } 
+        error: { message: 'Demo mode: Authentication not available. Please configure Supabase credentials in .env file.' } 
       }
     }
     
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    })
-    return { data, error }
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      })
+      return { data, error }
+    } catch (error) {
+      return { data: null, error: { message: 'Authentication service unavailable' } }
+    }
   },
 
   // Sign in with email and password
@@ -39,15 +46,19 @@ export const auth = {
     if (isDemoMode) {
       return { 
         data: null, 
-        error: { message: 'Demo mode: Authentication not available. Please configure Supabase credentials.' } 
+        error: { message: 'Demo mode: Authentication not available. Please configure Supabase credentials in .env file.' } 
       }
     }
     
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    return { data, error }
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      return { data, error }
+    } catch (error) {
+      return { data: null, error: { message: 'Authentication service unavailable' } }
+    }
   },
 
   // Sign in with Google
@@ -55,17 +66,21 @@ export const auth = {
     if (isDemoMode) {
       return { 
         data: null, 
-        error: { message: 'Demo mode: OAuth not available. Please configure Supabase credentials.' } 
+        error: { message: 'Demo mode: OAuth not available. Please configure Supabase credentials in .env file.' } 
       }
     }
     
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin
-      }
-    })
-    return { data, error }
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin
+        }
+      })
+      return { data, error }
+    } catch (error) {
+      return { data: null, error: { message: 'OAuth service unavailable' } }
+    }
   },
 
   // Sign in with GitHub
@@ -73,17 +88,21 @@ export const auth = {
     if (isDemoMode) {
       return { 
         data: null, 
-        error: { message: 'Demo mode: OAuth not available. Please configure Supabase credentials.' } 
+        error: { message: 'Demo mode: OAuth not available. Please configure Supabase credentials in .env file.' } 
       }
     }
     
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: {
-        redirectTo: window.location.origin
-      }
-    })
-    return { data, error }
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: window.location.origin
+        }
+      })
+      return { data, error }
+    } catch (error) {
+      return { data: null, error: { message: 'OAuth service unavailable' } }
+    }
   },
 
   // Sign out
@@ -92,8 +111,12 @@ export const auth = {
       return { error: null }
     }
     
-    const { error } = await supabase.auth.signOut()
-    return { error }
+    try {
+      const { error } = await supabase.auth.signOut()
+      return { error }
+    } catch (error) {
+      return { error: null }
+    }
   },
 
   // Get current session
@@ -102,8 +125,12 @@ export const auth = {
       return { session: null, error: null }
     }
     
-    const { data: session, error } = await supabase.auth.getSession()
-    return { session, error }
+    try {
+      const { data: session, error } = await supabase.auth.getSession()
+      return { session, error }
+    } catch (error) {
+      return { session: null, error }
+    }
   },
 
   // Get current user
@@ -112,7 +139,11 @@ export const auth = {
       return { user: null, error: null }
     }
     
-    const { data: user, error } = await supabase.auth.getUser()
-    return { user, error }
+    try {
+      const { data: user, error } = await supabase.auth.getUser()
+      return { user, error }
+    } catch (error) {
+      return { user: null, error }
+    }
   }
 }

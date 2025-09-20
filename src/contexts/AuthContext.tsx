@@ -32,6 +32,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Check if we're in demo mode first
+    const isDemoMode = import.meta.env.VITE_SUPABASE_URL === 'https://demo-project.supabase.co' || 
+                      import.meta.env.VITE_SUPABASE_ANON_KEY === 'demo-anon-key' ||
+                      !import.meta.env.VITE_SUPABASE_URL ||
+                      !import.meta.env.VITE_SUPABASE_ANON_KEY
+
+    if (isDemoMode) {
+      console.log('Running in demo mode - authentication disabled')
+      setSession(null)
+      setUser(null)
+      setLoading(false)
+      return
+    }
+
     // Get initial session
     const getInitialSession = async () => {
       try {
