@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Progress } from "@/components/ui/progress"
 import { Toaster } from "@/components/ui/sonner"
-import { Brain, Lightning, ChartBar, Users, ArrowRight, Sparkle, Target, Clock, TrendUp, Play, CheckCircle } from "@phosphor-icons/react"
+import { Brain, Lightning, ChartBar, Users, ArrowRight, Sparkle, Target, Clock, TrendUp, Play, CheckCircle, Calendar, Phone } from "@phosphor-icons/react"
 import { toast } from 'sonner'
 
 // Declare spark global for TypeScript
@@ -23,6 +23,42 @@ function App() {
   const [generatedContent, setGeneratedContent] = useState("")
   const [inputTopic, setInputTopic] = useState("")
   const [isMainGenerating, setIsMainGenerating] = useState(false)
+
+  // Scroll to section function
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
+  // Handle sign in
+  const handleSignIn = () => {
+    toast.info("Sign In", {
+      description: "Sign in functionality would redirect to authentication page."
+    })
+  }
+
+  // Handle get started
+  const handleGetStarted = () => {
+    toast.success("Welcome to ContentFlow AI!", {
+      description: "Redirecting to registration page..."
+    })
+  }
+
+  // Handle start free trial
+  const handleStartFreeTrial = () => {
+    toast.success("Free Trial Started!", {
+      description: "Your 14-day free trial has been activated. Welcome aboard!"
+    })
+  }
+
+  // Handle schedule demo
+  const handleScheduleDemo = () => {
+    toast.info("Demo Scheduled", {
+      description: "A demo has been scheduled. You'll receive a calendar invite shortly."
+    })
+  }
 
   const [demoSteps, setDemoSteps] = useState([
     {
@@ -173,11 +209,26 @@ Make the content professional, informative, and suitable for publication. Focus 
               <span className="text-xl font-bold">ContentFlow AI</span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">Features</a>
-              <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
-              <a href="#about" className="text-muted-foreground hover:text-foreground transition-colors">About</a>
-              <Button variant="outline" size="sm">Sign In</Button>
-              <Button size="sm">Get Started</Button>
+              <button 
+                onClick={() => scrollToSection('features')} 
+                className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              >
+                Features
+              </button>
+              <button 
+                onClick={() => scrollToSection('pricing')} 
+                className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              >
+                Pricing
+              </button>
+              <button 
+                onClick={() => scrollToSection('about')} 
+                className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              >
+                About
+              </button>
+              <Button variant="outline" size="sm" onClick={handleSignIn}>Sign In</Button>
+              <Button size="sm" onClick={handleGetStarted}>Get Started</Button>
             </div>
           </div>
         </div>
@@ -198,7 +249,7 @@ Make the content professional, informative, and suitable for publication. Focus 
             From ideation to publication, streamline every step of your content journey.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <Button size="lg" className="text-lg px-8">
+            <Button size="lg" className="text-lg px-8" onClick={handleGetStarted}>
               Start Creating Free
               <ArrowRight size={20} className="ml-2" />
             </Button>
@@ -467,13 +518,202 @@ Make the content professional, informative, and suitable for publication. Focus 
             Join thousands of creators who are already using ContentFlow AI to scale their content production
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="text-lg px-8">
+            <Button size="lg" className="text-lg px-8" onClick={handleStartFreeTrial}>
               Start Free Trial
               <ArrowRight size={20} className="ml-2" />
             </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8">
+            <Button variant="outline" size="lg" className="text-lg px-8" onClick={handleScheduleDemo}>
+              <Phone size={20} className="mr-2" />
               Schedule Demo
             </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Simple, Transparent Pricing</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Choose the plan that fits your content creation needs
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <Card className="relative">
+              <CardHeader>
+                <CardTitle className="text-xl">Starter</CardTitle>
+                <CardDescription>Perfect for individual creators</CardDescription>
+                <div className="mt-4">
+                  <span className="text-3xl font-bold">$9</span>
+                  <span className="text-muted-foreground">/month</span>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center text-sm">
+                    <CheckCircle size={16} className="text-green-500 mr-2" />
+                    50 AI generations/month
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <CheckCircle size={16} className="text-green-500 mr-2" />
+                    Basic SEO optimization
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <CheckCircle size={16} className="text-green-500 mr-2" />
+                    Email support
+                  </div>
+                </div>
+                <Button className="w-full" onClick={handleStartFreeTrial}>Start Free Trial</Button>
+              </CardContent>
+            </Card>
+
+            <Card className="relative border-primary">
+              <Badge className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                Most Popular
+              </Badge>
+              <CardHeader>
+                <CardTitle className="text-xl">Professional</CardTitle>
+                <CardDescription>For growing businesses and teams</CardDescription>
+                <div className="mt-4">
+                  <span className="text-3xl font-bold">$29</span>
+                  <span className="text-muted-foreground">/month</span>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center text-sm">
+                    <CheckCircle size={16} className="text-green-500 mr-2" />
+                    500 AI generations/month
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <CheckCircle size={16} className="text-green-500 mr-2" />
+                    Advanced SEO tools
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <CheckCircle size={16} className="text-green-500 mr-2" />
+                    Team collaboration
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <CheckCircle size={16} className="text-green-500 mr-2" />
+                    Priority support
+                  </div>
+                </div>
+                <Button className="w-full" onClick={handleStartFreeTrial}>Start Free Trial</Button>
+              </CardContent>
+            </Card>
+
+            <Card className="relative">
+              <CardHeader>
+                <CardTitle className="text-xl">Enterprise</CardTitle>
+                <CardDescription>For large organizations</CardDescription>
+                <div className="mt-4">
+                  <span className="text-3xl font-bold">$99</span>
+                  <span className="text-muted-foreground">/month</span>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center text-sm">
+                    <CheckCircle size={16} className="text-green-500 mr-2" />
+                    Unlimited generations
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <CheckCircle size={16} className="text-green-500 mr-2" />
+                    Custom AI models
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <CheckCircle size={16} className="text-green-500 mr-2" />
+                    Advanced analytics
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <CheckCircle size={16} className="text-green-500 mr-2" />
+                    Dedicated support
+                  </div>
+                </div>
+                <Button variant="outline" className="w-full" onClick={handleScheduleDemo}>
+                  Contact Sales
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section id="about" className="py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">About ContentFlow AI</h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              We're revolutionizing content creation with cutting-edge AI technology, 
+              empowering creators and businesses to scale their content strategies efficiently.
+            </p>
+          </div>
+          
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <h3 className="text-2xl font-bold">Our Mission</h3>
+              <p className="text-muted-foreground text-lg">
+                ContentFlow AI was founded with a simple mission: to democratize high-quality content creation. 
+                We believe that everyone should have access to powerful AI tools that can help them tell their 
+                stories, share their expertise, and connect with their audiences.
+              </p>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-primary">10K+</div>
+                  <div className="text-muted-foreground">Active Users</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-accent">500K+</div>
+                  <div className="text-muted-foreground">Content Generated</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-primary">99.9%</div>
+                  <div className="text-muted-foreground">Uptime</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-accent">50+</div>
+                  <div className="text-muted-foreground">Languages</div>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-6">
+              <h3 className="text-2xl font-bold">Why Choose Us?</h3>
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <Brain size={24} className="text-primary mt-1" />
+                  <div>
+                    <h4 className="font-semibold">Advanced AI Models</h4>
+                    <p className="text-muted-foreground">
+                      Our proprietary AI models are trained on diverse, high-quality content to ensure 
+                      exceptional output across all content types.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <Target size={24} className="text-accent mt-1" />
+                  <div>
+                    <h4 className="font-semibold">SEO-First Approach</h4>
+                    <p className="text-muted-foreground">
+                      Every piece of content is optimized for search engines from the ground up, 
+                      helping you rank higher and reach more audiences.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <Users size={24} className="text-primary mt-1" />
+                  <div>
+                    <h4 className="font-semibold">Built for Teams</h4>
+                    <p className="text-muted-foreground">
+                      Collaborative features and workflow management tools designed to help 
+                      teams work together seamlessly.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -494,28 +734,88 @@ Make the content professional, informative, and suitable for publication. Focus 
             <div>
               <h3 className="font-semibold mb-4">Product</h3>
               <div className="space-y-2 text-muted-foreground">
-                <div>Features</div>
-                <div>Pricing</div>
-                <div>API</div>
-                <div>Integrations</div>
+                <button 
+                  onClick={() => scrollToSection('features')} 
+                  className="block hover:text-foreground transition-colors cursor-pointer"
+                >
+                  Features
+                </button>
+                <button 
+                  onClick={() => scrollToSection('pricing')} 
+                  className="block hover:text-foreground transition-colors cursor-pointer"
+                >
+                  Pricing
+                </button>
+                <button 
+                  onClick={() => toast.info("API documentation coming soon!")} 
+                  className="block hover:text-foreground transition-colors cursor-pointer"
+                >
+                  API
+                </button>
+                <button 
+                  onClick={() => toast.info("Integrations page coming soon!")} 
+                  className="block hover:text-foreground transition-colors cursor-pointer"
+                >
+                  Integrations
+                </button>
               </div>
             </div>
             <div>
               <h3 className="font-semibold mb-4">Company</h3>
               <div className="space-y-2 text-muted-foreground">
-                <div>About</div>
-                <div>Blog</div>
-                <div>Careers</div>
-                <div>Contact</div>
+                <button 
+                  onClick={() => scrollToSection('about')} 
+                  className="block hover:text-foreground transition-colors cursor-pointer"
+                >
+                  About
+                </button>
+                <button 
+                  onClick={() => toast.info("Blog coming soon!")} 
+                  className="block hover:text-foreground transition-colors cursor-pointer"
+                >
+                  Blog
+                </button>
+                <button 
+                  onClick={() => toast.info("Careers page coming soon!")} 
+                  className="block hover:text-foreground transition-colors cursor-pointer"
+                >
+                  Careers
+                </button>
+                <button 
+                  onClick={() => toast.info("Contact form coming soon!")} 
+                  className="block hover:text-foreground transition-colors cursor-pointer"
+                >
+                  Contact
+                </button>
               </div>
             </div>
             <div>
               <h3 className="font-semibold mb-4">Support</h3>
               <div className="space-y-2 text-muted-foreground">
-                <div>Help Center</div>
-                <div>Documentation</div>
-                <div>Community</div>
-                <div>Status</div>
+                <button 
+                  onClick={() => toast.info("Help Center coming soon!")} 
+                  className="block hover:text-foreground transition-colors cursor-pointer"
+                >
+                  Help Center
+                </button>
+                <button 
+                  onClick={() => toast.info("Documentation coming soon!")} 
+                  className="block hover:text-foreground transition-colors cursor-pointer"
+                >
+                  Documentation
+                </button>
+                <button 
+                  onClick={() => toast.info("Community coming soon!")} 
+                  className="block hover:text-foreground transition-colors cursor-pointer"
+                >
+                  Community
+                </button>
+                <button 
+                  onClick={() => toast.info("All systems operational!")} 
+                  className="block hover:text-foreground transition-colors cursor-pointer"
+                >
+                  Status
+                </button>
               </div>
             </div>
           </div>
@@ -523,8 +823,18 @@ Make the content professional, informative, and suitable for publication. Focus 
           <div className="flex flex-col sm:flex-row justify-between items-center text-muted-foreground">
             <div>© 2024 ContentFlow AI. All rights reserved.</div>
             <div className="flex space-x-6 mt-4 sm:mt-0">
-              <div>Privacy Policy</div>
-              <div>Terms of Service</div>
+              <button 
+                onClick={() => toast.info("Privacy Policy", { description: "Our privacy policy page would open here." })} 
+                className="hover:text-foreground transition-colors cursor-pointer"
+              >
+                Privacy Policy
+              </button>
+              <button 
+                onClick={() => toast.info("Terms of Service", { description: "Our terms of service page would open here." })} 
+                className="hover:text-foreground transition-colors cursor-pointer"
+              >
+                Terms of Service
+              </button>
             </div>
           </div>
         </div>
