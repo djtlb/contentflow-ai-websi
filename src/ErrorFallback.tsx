@@ -16,20 +16,15 @@ export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps)
           <AlertTitle>Something went wrong</AlertTitle>
           <AlertDescription>
             This spark has encountered an error. Please try refreshing the page or contact support if the problem persists.
+            <br />
+            <span className="text-xs mt-2 block font-mono">{error.message}</span>
           </AlertDescription>
         </Alert>
         
-        <div className="bg-card border rounded-lg p-4">
-          <h3 className="font-semibold text-sm text-muted-foreground mb-2">Error Details:</h3>
-          <pre className="text-xs text-destructive bg-muted/50 p-3 rounded border overflow-auto max-h-32">
-            {error.message}
-          </pre>
-        </div>
-        
         <Button 
-          onClick={resetErrorBoundary} 
-          className="w-full"
+          onClick={resetErrorBoundary}
           variant="outline"
+          className="w-full"
         >
           <ArrowClockwise size={16} className="mr-2" />
           Try Again
