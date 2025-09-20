@@ -1,22 +1,20 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Get environment variables or use demo defaults for development
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://demo-project.supabase.co'
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'demo-anon-key'
+// Get environment variables with the actual Supabase credentials
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://krrawqhjcpqjtsgnexzj.supabase.co'
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtycmF3cWhqY3BxanRzZ25leHpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMzAyOTksImV4cCI6MjA3MzcwNjI5OX0.d7dAKKqsbnmVJadvwc09dFeJGND_-TKnH6Q2L5Cp4bA'
 
-// Check if we're in demo mode (no real Supabase credentials)
-const isDemoMode = supabaseUrl === 'https://demo-project.supabase.co' || 
-                  supabaseAnonKey === 'demo-anon-key' ||
-                  !import.meta.env.VITE_SUPABASE_URL ||
-                  !import.meta.env.VITE_SUPABASE_ANON_KEY ||
-                  supabaseAnonKey.includes('CYJYCYJY') // Check for truncated placeholder key
+// Check if we have valid Supabase credentials
+const isValidConfig = supabaseUrl && supabaseAnonKey && 
+                     supabaseUrl.includes('.supabase.co') && 
+                     supabaseAnonKey.startsWith('eyJ')
 
-// Create Supabase client with error handling for demo mode
+// Create Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    autoRefreshToken: !isDemoMode,
-    persistSession: !isDemoMode,
-    detectSessionInUrl: !isDemoMode
+    autoRefreshToken: isValidConfig,
+    persistSession: isValidConfig,
+    detectSessionInUrl: isValidConfig
   }
 })
 
@@ -24,10 +22,10 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 export const auth = {
   // Sign up with email and password
   signUp: async (email: string, password: string) => {
-    if (isDemoMode) {
+    if (!isValidConfig) {
       return { 
         data: null, 
-        error: { message: 'Demo mode: Authentication not available. Please configure Supabase credentials in .env file.' } 
+        error: { message: 'Authentication service not configured. Please check Supabase credentials.' } 
       }
     }
     
@@ -44,10 +42,10 @@ export const auth = {
 
   // Sign in with email and password
   signIn: async (email: string, password: string) => {
-    if (isDemoMode) {
+    if (!isValidConfig) {
       return { 
         data: null, 
-        error: { message: 'Demo mode: Authentication not available. Please configure Supabase credentials in .env file.' } 
+        error: { message: 'Authentication service not configured. Please check Supabase credentials.' } 
       }
     }
     
@@ -64,10 +62,10 @@ export const auth = {
 
   // Sign in with Google
   signInWithGoogle: async () => {
-    if (isDemoMode) {
+    if (!isValidConfig) {
       return { 
         data: null, 
-        error: { message: 'Demo mode: OAuth not available. Please configure Supabase credentials in .env file.' } 
+        error: { message: 'OAuth service not configured. Please check Supabase credentials.' } 
       }
     }
     
@@ -86,10 +84,10 @@ export const auth = {
 
   // Sign in with GitHub
   signInWithGitHub: async () => {
-    if (isDemoMode) {
+    if (!isValidConfig) {
       return { 
         data: null, 
-        error: { message: 'Demo mode: OAuth not available. Please configure Supabase credentials in .env file.' } 
+        error: { message: 'OAuth service not configured. Please check Supabase credentials.' } 
       }
     }
     
@@ -108,7 +106,7 @@ export const auth = {
 
   // Sign out
   signOut: async () => {
-    if (isDemoMode) {
+    if (!isValidConfig) {
       return { error: null }
     }
     
@@ -122,7 +120,7 @@ export const auth = {
 
   // Get current session
   getSession: async () => {
-    if (isDemoMode) {
+    if (!isValidConfig) {
       return { session: null, error: null }
     }
     
@@ -136,7 +134,7 @@ export const auth = {
 
   // Get current user
   getUser: async () => {
-    if (isDemoMode) {
+    if (!isValidConfig) {
       return { user: null, error: null }
     }
     
