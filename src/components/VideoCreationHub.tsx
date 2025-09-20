@@ -13,6 +13,7 @@ import {
 } from "@phosphor-icons/react"
 import { VideoScriptGenerator } from './VideoScriptGenerator'
 import { AIVideoGenerator } from './AIVideoGenerator'
+import { ABTestingTemplates } from './ABTestingTemplates'
 
 interface VideoScript {
   id: string
@@ -76,10 +77,14 @@ export function VideoCreationHub() {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="scripts" className="flex items-center gap-2">
             <FileText size={16} />
             Script Generator
+          </TabsTrigger>
+          <TabsTrigger value="testing" className="flex items-center gap-2">
+            <Sparkle size={16} />
+            A/B Testing
           </TabsTrigger>
           <TabsTrigger value="videos" className="flex items-center gap-2">
             <Video size={16} />
@@ -90,6 +95,10 @@ export function VideoCreationHub() {
 
         <TabsContent value="scripts" className="space-y-6">
           <VideoScriptGenerator onCreateVideo={handleScriptToVideo} />
+        </TabsContent>
+
+        <TabsContent value="testing" className="space-y-6">
+          <ABTestingTemplates />
         </TabsContent>
 
         <TabsContent value="videos" className="space-y-6">
