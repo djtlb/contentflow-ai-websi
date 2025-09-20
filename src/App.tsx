@@ -6,7 +6,15 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Progress } from "@/components/ui/progress"
+import { Toaster } from "@/components/ui/sonner"
 import { Brain, Lightning, ChartBar, Users, ArrowRight, Sparkle, Target, Clock, TrendUp, Play, CheckCircle } from "@phosphor-icons/react"
+import { toast } from 'sonner'
+
+// Declare spark global for TypeScript
+declare const spark: {
+  llmPrompt: (strings: TemplateStringsArray, ...values: any[]) => string
+  llm: (prompt: string, modelName?: string, jsonMode?: boolean) => Promise<string>
+}
 
 function App() {
   const [demoStep, setDemoStep] = useState(0)
@@ -16,7 +24,7 @@ function App() {
   const [inputTopic, setInputTopic] = useState("")
   const [isMainGenerating, setIsMainGenerating] = useState(false)
 
-  const demoSteps = [
+  const [demoSteps, setDemoSteps] = useState([
     {
       title: "Enter Your Topic",
       description: "Start by describing what content you want to create",
@@ -49,28 +57,71 @@ The landscape of sustainable technology is evolving rapidly, with groundbreaking
 
 This content is optimized for search engines and ready for publication across your marketing channels.`
     }
-  ]
+  ])
 
-  const startDemo = () => {
+  const startDemo = async () => {
     setDemoStep(0)
     setDemoProgress(0)
     setIsGenerating(true)
     setGeneratedContent("")
 
-    // Simulate demo progression
-    const interval = setInterval(() => {
-      setDemoStep(prev => {
-        const nextStep = prev + 1
-        setDemoProgress((nextStep / demoSteps.length) * 100)
-        
-        if (nextStep >= demoSteps.length) {
-          setIsGenerating(false)
-          clearInterval(interval)
-          return demoSteps.length - 1
+    // Step 1: Show topic input
+    setDemoStep(1)
+    setDemoProgress(25)
+    
+    await new Promise(resolve => setTimeout(resolve, 1500))
+    
+    // Step 2: Show AI analysis
+    setDemoStep(2)
+    setDemoProgress(50)
+    
+    await new Promise(resolve => setTimeout(resolve, 1500))
+    
+    // Step 3: Show content generation
+    setDemoStep(3)
+    setDemoProgress(75)
+    
+    try {
+      // Generate real AI content for the demo
+      const prompt = spark.llmPrompt`Generate a comprehensive, engaging article about sustainable technology trends in 2024. 
+
+Structure the content with:
+- A compelling headline starting with "#"
+- An engaging introduction paragraph
+- 3-4 main sections with descriptive subheadings starting with "##"
+- Key insights and practical information
+- Focus on renewable energy, green tech, and sustainability metrics
+
+Make the content professional, informative, and suitable for publication. Keep it concise but comprehensive.`
+
+      const aiContent = await spark.llm(prompt)
+      
+      // Update the demo steps with the real AI content
+      setDemoSteps(prev => [
+        ...prev.slice(0, 3),
+        {
+          title: "Final Result",
+          description: "Your AI-generated content is ready for use",
+          content: aiContent
         }
-        return nextStep
+      ])
+      
+      // Step 4: Show final result
+      setDemoStep(4)
+      setDemoProgress(100)
+      setIsGenerating(false)
+      toast.success("Demo completed!", {
+        description: "Real AI content generated successfully."
       })
-    }, 2000)
+    } catch (error) {
+      console.error('Demo content generation failed:', error)
+      setDemoStep(4)
+      setDemoProgress(100)
+      setIsGenerating(false)
+      toast.error("Demo generation failed", {
+        description: "Using fallback content for demonstration."
+      })
+    }
   }
 
   const generateMainContent = async () => {
@@ -78,16 +129,41 @@ This content is optimized for search engines and ready for publication across yo
     
     setIsMainGenerating(true)
     
-    // Simulate content generation with a delay
-    setTimeout(() => {
-      const sampleContent = `"${inputTopic.charAt(0).toUpperCase() + inputTopic.slice(1)} represents a fascinating area of exploration with numerous applications and implications. Recent developments in this field have shown remarkable progress, offering new opportunities for innovation and growth. Key considerations include market trends, technological advancement, and user adoption patterns..."`
-      setGeneratedContent(sampleContent)
+    try {
+      // Create AI prompt for content generation
+      const prompt = spark.llmPrompt`Generate a comprehensive, engaging article about ${inputTopic}. 
+
+Structure the content with:
+- A compelling headline
+- An engaging introduction paragraph
+- 3-4 main sections with descriptive subheadings
+- Key insights and practical information
+- SEO-optimized content that's informative and readable
+
+Topic: ${inputTopic}
+
+Make the content professional, informative, and suitable for publication. Focus on providing value to readers while maintaining an engaging tone.`
+
+      // Generate content using Spark LLM
+      const aiContent = await spark.llm(prompt)
+      setGeneratedContent(aiContent)
+      toast.success("Content generated successfully!", {
+        description: "Your AI-powered content is ready to use."
+      })
+    } catch (error) {
+      console.error('Content generation failed:', error)
+      setGeneratedContent(`Sorry, we encountered an issue generating content about "${inputTopic}". Please try again or try a different topic.`)
+      toast.error("Content generation failed", {
+        description: "Please try again with a different topic."
+      })
+    } finally {
       setIsMainGenerating(false)
-    }, 2000)
+    }
   }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Toaster />
       {/* Navigation */}
       <nav className="border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -176,8 +252,22 @@ This content is optimized for search engines and ready for publication across yo
                         {index <= demoStep && (
                           <CardContent>
                             {index === 3 ? (
-                              <div className="bg-background p-4 rounded-lg border">
-                                <pre className="whitespace-pre-wrap text-sm">{step.content}</pre>
+                              <div className="bg-background p-4 rounded-lg border max-h-96 overflow-y-auto">
+                                <div className="prose prose-sm max-w-none">
+                                  {step.content.split('\n').map((line, lineIndex) => {
+                                    if (line.startsWith('# ')) {
+                                      return <h1 key={lineIndex} className="text-lg font-bold mb-3 text-foreground">{line.slice(2)}</h1>
+                                    } else if (line.startsWith('## ')) {
+                                      return <h2 key={lineIndex} className="text-base font-semibold mb-2 mt-4 text-foreground">{line.slice(3)}</h2>
+                                    } else if (line.startsWith('**') && line.endsWith('**')) {
+                                      return <p key={lineIndex} className="font-semibold mb-2 text-foreground">{line.slice(2, -2)}</p>
+                                    } else if (line.trim()) {
+                                      return <p key={lineIndex} className="mb-2 text-muted-foreground">{line}</p>
+                                    } else {
+                                      return <br key={lineIndex} />
+                                    }
+                                  })}
+                                </div>
                               </div>
                             ) : (
                               <div className="bg-muted p-3 rounded-lg">
@@ -246,24 +336,45 @@ This content is optimized for search engines and ready for publication across yo
                   )}
                 </Button>
               </div>
-              <div className="bg-muted p-4 rounded-lg text-left min-h-[100px] flex items-center">
+              <div className="bg-muted p-4 rounded-lg text-left min-h-[200px]">
                 {isMainGenerating ? (
-                  <div className="flex items-center space-x-2 text-muted-foreground">
-                    <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                    <span>Generating content...</span>
+                  <div className="flex items-center justify-center h-full">
+                    <div className="flex items-center space-x-2 text-muted-foreground">
+                      <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                      <span>Generating content with AI...</span>
+                    </div>
                   </div>
                 ) : generatedContent ? (
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-2">Generated Content Preview:</p>
-                    <p className="text-foreground">{generatedContent}</p>
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground">AI-Generated Content:</p>
+                    <div className="bg-background p-4 rounded-lg border max-h-96 overflow-y-auto">
+                      <div className="prose prose-sm max-w-none">
+                        {generatedContent.split('\n').map((line, lineIndex) => {
+                          if (line.startsWith('# ')) {
+                            return <h1 key={lineIndex} className="text-lg font-bold mb-3 text-foreground">{line.slice(2)}</h1>
+                          } else if (line.startsWith('## ')) {
+                            return <h2 key={lineIndex} className="text-base font-semibold mb-2 mt-4 text-foreground">{line.slice(3)}</h2>
+                          } else if (line.startsWith('**') && line.endsWith('**')) {
+                            return <p key={lineIndex} className="font-semibold mb-2 text-foreground">{line.slice(2, -2)}</p>
+                          } else if (line.trim()) {
+                            return <p key={lineIndex} className="mb-2 text-muted-foreground">{line}</p>
+                          } else {
+                            return <br key={lineIndex} />
+                          }
+                        })}
+                      </div>
+                    </div>
                   </div>
                 ) : (
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-2">Generated Content Preview:</p>
-                    <p className="text-foreground">
-                      "Sustainable technology is reshaping industries worldwide, from renewable energy solutions 
-                      to eco-friendly manufacturing processes. As businesses prioritize environmental responsibility..."
-                    </p>
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground mb-2">Sample Generated Content Preview:</p>
+                      <p className="text-foreground italic">
+                        "Sustainable technology is reshaping industries worldwide, from renewable energy solutions 
+                        to eco-friendly manufacturing processes. As businesses prioritize environmental responsibility..."
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-3">Enter a topic above to generate real AI content</p>
+                    </div>
                   </div>
                 )}
               </div>
