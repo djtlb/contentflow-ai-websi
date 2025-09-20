@@ -823,6 +823,23 @@ Make the content professional, informative, and suitable for publication. Focus 
           <div className="flex flex-col sm:flex-row justify-between items-center text-muted-foreground">
             <div>© 2024 ContentFlow AI. All rights reserved.</div>
             <div className="flex space-x-6 mt-4 sm:mt-0">
+              <div>Privacy Policy</div>
+              <div>Terms of Service</div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}
+
+export default App              </div>
+            </div>
+          </div>
+          <Separator className="my-8" />
+          <div className="flex flex-col sm:flex-row justify-between items-center text-muted-foreground">
+            <div>© 2024 ContentFlow AI. All rights reserved.</div>
+            <div className="flex space-x-6 mt-4 sm:mt-0">
               <button 
                 onClick={() => toast.info("Privacy Policy", { description: "Our privacy policy page would open here." })} 
                 className="hover:text-foreground transition-colors cursor-pointer"
